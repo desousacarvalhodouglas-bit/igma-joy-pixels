@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lovable Debug Tool",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Captura project_id e Bearer da Lovable e envia via proxy próprio (Edge Function).",
   "permissions": [
     "storage",
@@ -18,8 +18,7 @@
     "https://*.supabase.co/*"
   ],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html",
