@@ -469,6 +469,25 @@ export const ErrorDebugPopup: React.FC = () => {
               >
                 + Imagem
               </button>
+              <select
+                onChange={(e) => {
+                  const preset = PROMPT_PRESETS.find((p) => p.label === e.target.value);
+                  if (preset) setText(preset.value);
+                  e.target.value = "";
+                }}
+                defaultValue=""
+                className="text-xs px-1.5 py-1.5 rounded border border-input bg-background text-foreground hover:bg-accent cursor-pointer max-w-[140px]"
+                title="Inserir prompt pré-definido"
+              >
+                <option value="" disabled>
+                  Presets ▾
+                </option>
+                {PROMPT_PRESETS.map((p) => (
+                  <option key={p.label} value={p.label}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
               {images.length > 0 && (
                 <span className="text-[10px] text-muted-foreground">
                   {images.length} img · {totalKb}KB
