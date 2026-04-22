@@ -14,6 +14,7 @@
     --accent-2: #3b82f6;
     --danger: #ef4444;
     --success: #22c55e;
+    --warn: #f59e0b;
   }
   * { box-sizing: border-box; }
   body {
@@ -87,19 +88,43 @@
     border-radius: 4px;
     background: var(--panel);
     border: 1px solid var(--border);
+    margin-bottom: 6px;
   }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
   .dot.ok { background: var(--success); }
+  .detected {
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.35);
+    color: #86efac;
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 4px;
+  }
+  .detected.warn {
+    background: rgba(245,158,11,0.10);
+    border-color: rgba(245,158,11,0.35);
+    color: #fcd34d;
+  }
+  .detected-url {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+  #tabSelect { display: none; margin-top: 6px; }
 </style>
 </head>
 <body>
   <h1>🐛 Lovable Debug Tool</h1>
-  <p class="sub">Envie instrução + imagens diretamente para o Lovable.</p>
+  <p class="sub">Detecta o projeto automaticamente e envia instruções diretamente para o Lovable.</p>
 
   <div class="auth-status" id="authStatus">
     <span class="dot" id="authDot"></span>
     <span id="authText">Verificando login...</span>
   </div>
+
+  <div id="projectInfo"></div>
+  <select id="tabSelect"></select>
 
   <label for="prompt">Instrução para o Lovable</label>
   <textarea id="prompt" placeholder="Descreva o que você quer que o Lovable faça..."></textarea>
@@ -117,7 +142,7 @@
   <details id="authDetails">
     <summary>🔑 Credenciais admin (login automático)</summary>
     <p style="font-size:10px;color:var(--muted);margin:6px 0;">
-      Salve seu email e senha admin. A extensão fará login automaticamente sempre que abrir o app — sem precisar autorizar manualmente.
+      Salve seu email e senha admin. A extensão fará login automaticamente — sem precisar autorizar manualmente.
     </p>
     <label for="email">Email</label>
     <input id="email" type="email" placeholder="seu@email.com" autocomplete="off" />
@@ -132,15 +157,7 @@
     </div>
   </details>
 
-  <details>
-    <summary>⚙️ URL do app</summary>
-    <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
-    <div class="row">
-      <button id="save" class="secondary">💾 Salvar URL</button>
-    </div>
-  </details>
-
-  <div class="footer">v3.0.0 · auto-login bridge</div>
+  <div class="footer">v3.1.0 · auto-detect project</div>
 
   <script src="popup.js"></script>
 </body>
