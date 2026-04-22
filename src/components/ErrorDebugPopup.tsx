@@ -436,9 +436,10 @@ export const ErrorDebugPopup: React.FC = () => {
             <button
               type="button"
               onClick={fireError}
-              className="bg-destructive text-destructive-foreground text-xs font-semibold px-3 py-1.5 rounded hover:opacity-90"
+              disabled={uploading}
+              className="bg-destructive text-destructive-foreground text-xs font-semibold px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-50"
             >
-              Gerar Erro
+              {uploading ? "Enviando..." : "Gerar Erro"}
             </button>
           </div>
           <div
