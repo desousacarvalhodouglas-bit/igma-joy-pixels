@@ -1,1 +1,4 @@
 project_id = "bcafttsxvperfslgjphb"
+
+[functions.lovable-proxy]
+verify_jwt = false
