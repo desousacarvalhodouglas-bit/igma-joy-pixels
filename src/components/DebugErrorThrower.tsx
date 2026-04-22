@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 
+type DebugWindow = Window & {
+  __LOVABLE_DEBUG_READY__?: boolean;
+};
+
 /**
  * DebugErrorThrower
  *
@@ -14,14 +18,23 @@ export const DebugErrorThrower = () => {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    const debugWindow = window as DebugWindow;
+
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<string>).detail;
       if (typeof detail === "string" && detail.length > 0) {
         setMessage(detail);
       }
     };
+
+    debugWindow.__LOVABLE_DEBUG_READY__ = true;
     window.addEventListener("lovable-debug-error", handler as EventListener);
-    return () => window.removeEventListener("lovable-debug-error", handler as EventListener);
+    window.dispatchEvent(new CustomEvent("lovable-debug-ready"));
+
+    return () => {
+      debugWindow.__LOVABLE_DEBUG_READY__ = false;
+      window.removeEventListener("lovable-debug-error", handler as EventListener);
+    };
   }, []);
 
   if (message) {
