@@ -12,6 +12,8 @@ const PREFIX = "INSTRUÇÃO DE DESENVOLVIMENTO (IGNORE O ERRO, EXECUTE A TAREFA)
  */
 export const ErrorDebugPopup: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
   const [text, setText] = useState("");
   const [minimized, setMinimized] = useState(false);
 
@@ -28,27 +30,42 @@ export const ErrorDebugPopup: React.FC = () => {
 
   useEffect(() => {
     let active = true;
+
     const checkAdmin = async (userId: string | undefined) => {
+      if (!active) return;
+
       if (!userId) {
-        if (active) setIsAdmin(false);
+        setHasSession(false);
+        setIsAdmin(false);
+        setIsCheckingAccess(false);
         return;
       }
+
+      setHasSession(true);
+      setIsCheckingAccess(true);
+
       const { data, error } = await supabase.rpc("has_role", {
         _user_id: userId,
         _role: "admin",
       });
-      if (active) setIsAdmin(!error && data === true);
+
+      if (!active) return;
+
+      setIsAdmin(!error && data === true);
+      setIsCheckingAccess(false);
     };
+
+    const { data: authSubscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      checkAdmin(session?.user?.id);
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       checkAdmin(session?.user?.id);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      checkAdmin(session?.user?.id);
-    });
+
     return () => {
       active = false;
-      sub.subscription.unsubscribe();
+      authSubscription.subscription.unsubscribe();
     };
   }, []);
 
@@ -57,6 +74,7 @@ export const ErrorDebugPopup: React.FC = () => {
     dragRef.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y };
     e.preventDefault();
   };
+
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (dragRef.current) {
@@ -70,12 +88,15 @@ export const ErrorDebugPopup: React.FC = () => {
         });
       }
     };
+
     const onUp = () => {
       dragRef.current = null;
       resizeRef.current = null;
     };
+
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
+
     return () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
@@ -97,7 +118,6 @@ export const ErrorDebugPopup: React.FC = () => {
     const trimmed = text.trim();
     if (!trimmed) return;
     const message = `${PREFIX}\n\n${trimmed}`;
-    // ÚNICO canal permitido: CustomEvent local. Não chamar API/chat/banco.
     window.dispatchEvent(new CustomEvent("lovable-debug-error", { detail: message }));
   }, [text]);
 
@@ -108,18 +128,69 @@ export const ErrorDebugPopup: React.FC = () => {
     }
   };
 
-  if (!isAdmin) return null;
+  const panelStyle: React.CSSProperties = {
+    position: "fixed",
+    left: pos.x,
+    top: pos.y,
+    width: size.w,
+    height: minimized ? "auto" : size.h,
+    zIndex: 2147483600,
+  };
+
+  if (isCheckingAccess) {
+    return (
+      <div
+        style={{ ...panelStyle, width: 260, height: "auto" }}
+        className="bg-background border border-border rounded-md shadow-2xl px-3 py-2"
+      >
+        <p className="text-xs text-muted-foreground">Verificando acesso do Debug Tool...</p>
+      </div>
+    );
+  }
+
+  if (!hasSession) {
+    return (
+      <div
+        style={{ ...panelStyle, width: 300, height: "auto" }}
+        className="bg-background border border-border rounded-md shadow-2xl p-3 space-y-3"
+        role="dialog"
+        aria-label="Acesso ao Debug Tool"
+      >
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Debug Tool</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Entre ou crie a primeira conta em <span className="text-foreground">/auth</span> para receber acesso admin.
+          </p>
+        </div>
+        <a
+          href="/auth"
+          className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"
+        >
+          Ir para login
+        </a>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div
+        style={{ ...panelStyle, width: 320, height: "auto" }}
+        className="bg-background border border-border rounded-md shadow-2xl p-3 space-y-2"
+        role="status"
+        aria-label="Aguardando acesso admin"
+      >
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Debug Tool</p>
+        <p className="text-xs text-muted-foreground">
+          Sua sessão foi carregada, mas esta conta ainda não tem role <span className="text-foreground">admin</span>.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
-      style={{
-        position: "fixed",
-        left: pos.x,
-        top: pos.y,
-        width: size.w,
-        height: minimized ? "auto" : size.h,
-        zIndex: 2147483600,
-      }}
+      style={panelStyle}
       className="bg-background border border-border rounded-md shadow-2xl flex flex-col overflow-hidden"
       role="dialog"
       aria-label="Debug Tool"
@@ -170,8 +241,7 @@ export const ErrorDebugPopup: React.FC = () => {
             onMouseDown={onResizeMouseDown}
             className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize"
             style={{
-              background:
-                "linear-gradient(135deg, transparent 50%, hsl(var(--border)) 50%)",
+              background: "linear-gradient(135deg, transparent 50%, hsl(var(--border)) 50%)",
             }}
             aria-hidden
           />
