@@ -1,14 +1,14 @@
 // ============================================================
-// popup.js — v4.2.0
-// Mesma forma de conexão do "2_frontend":
-//   - captura project_id de lovable.dev/projects/{uuid}
-//   - captura Bearer token de api.lovable.dev
-//   - envia para o proxy PHP: cxpayments.sbs/api.php?action=send_message
-//     com payload { key, project_id, bearer, message, images: [base64] }
+// popup.js — v5.0.0
+// Envia via Edge Function própria (sem chave de sessão externa).
+// Endpoint: <SUPABASE_URL>/functions/v1/lovable-proxy
+// Payload: { project_id, bearer, message, images: [base64] }
 // ============================================================
 
-const PHP_ENDPOINT = "https://cxpayments.sbs/api.php";
-const SESSION_KEY_STORAGE = "userSessionKey";
+const SUPABASE_URL = "https://bcafttsxvperfslgjphb.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYWZ0dHN4dnBlcmZzbGdqcGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc5NzQwNTYsImV4cCI6MjA4MzU1MDA1Nn0.eaCDIVgdvm31TCK1qTnbdh-SNUw718UFAsGWd7ifvPc";
+const PROXY_ENDPOINT = `${SUPABASE_URL}/functions/v1/lovable-proxy`;
 
 const $ = (id) => document.getElementById(id);
 const promptInput = $("prompt");
@@ -18,8 +18,6 @@ const sendBtn = $("send");
 const refreshBtn = $("refresh");
 const clearBtn = $("clear");
 const statusEl = $("status");
-const sessionKeyInput = $("sessionKey");
-const saveSessionKeyBtn = $("saveSessionKey");
 const readyDot = $("readyDot");
 const readyText = $("readyText");
 const projectIdValue = $("projectIdValue");
@@ -105,7 +103,6 @@ const extractProjectIdFromUrl = (url) => {
   return m ? m[1] : null;
 };
 
-// Procura abas abertas em lovable.dev/projects/{uuid} e retorna o id
 const detectProjectIdFromTabs = () =>
   new Promise((resolve) => {
     chrome.tabs.query({ url: "https://lovable.dev/*" }, (tabs) => {
@@ -134,10 +131,7 @@ const refreshCollected = async () => {
   const data = await loadCollected();
   collected.bearerToken = data.bearerToken || null;
 
-  // 1) Usa o que o content script já gravou
   let pid = data.projectId || null;
-
-  // 2) Fallback: detecta direto pelas abas abertas no lovable.dev
   if (!pid) {
     pid = await detectProjectIdFromTabs();
     if (pid) {
@@ -172,29 +166,7 @@ const fileToBase64 = (file) =>
     reader.readAsDataURL(file);
   });
 
-// ---------- Session key (validada pelo proxy PHP) ----------
-
-const getSessionKey = () =>
-  new Promise((resolve) =>
-    chrome.storage.local.get([SESSION_KEY_STORAGE], (d) =>
-      resolve(d[SESSION_KEY_STORAGE] || "")
-    )
-  );
-
-const setSessionKey = (key) =>
-  chrome.storage.local.set({ [SESSION_KEY_STORAGE]: key });
-
-saveSessionKeyBtn?.addEventListener("click", async () => {
-  const key = sessionKeyInput.value.trim();
-  if (!key) {
-    setStatus("Informe a chave de sessão.", "error");
-    return;
-  }
-  await setSessionKey(key);
-  setStatus("✓ Chave salva.", "success");
-});
-
-// ---------- Send (via proxy PHP — mesma forma do 2_frontend) ----------
+// ---------- Send (via Edge Function própria) ----------
 
 sendBtn.addEventListener("click", async () => {
   const prompt = promptInput.value.trim();
@@ -217,17 +189,8 @@ sendBtn.addEventListener("click", async () => {
     return;
   }
 
-  const sessionKey = (sessionKeyInput.value.trim() || (await getSessionKey())).trim();
-  if (!sessionKey) {
-    setStatus(
-      "Informe a chave de sessão (campo abaixo) e clique em '💾 Salvar chave'.",
-      "error"
-    );
-    return;
-  }
-
   sendBtn.disabled = true;
-  setStatus("Enviando via proxy...", "info");
+  setStatus("Enviando...", "info");
 
   try {
     const imagesBase64 = [];
@@ -236,11 +199,14 @@ sendBtn.addEventListener("click", async () => {
       imagesBase64.push(dataUrl);
     }
 
-    const res = await fetch(`${PHP_ENDPOINT}?action=send_message`, {
+    const res = await fetch(PROXY_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
       body: JSON.stringify({
-        key: sessionKey,
         project_id: collected.projectId,
         bearer: collected.bearerToken,
         message: prompt,
@@ -257,9 +223,11 @@ sendBtn.addEventListener("click", async () => {
       attached = [];
       renderThumbs();
     } else {
-      const reason = result?.reason ? ` (${result.reason})` : "";
-      const msg = result?.message || result?.error || `HTTP ${res.status}`;
-      throw new Error(`${msg}${reason}`);
+      const detail = result?.details
+        ? ` — ${typeof result.details === "string" ? result.details : JSON.stringify(result.details).slice(0, 200)}`
+        : "";
+      const msg = result?.error || `HTTP ${res.status}`;
+      throw new Error(`${msg}${detail}`);
     }
   } catch (err) {
     setStatus(`Erro: ${err.message}`, "error");
@@ -282,9 +250,4 @@ clearBtn.addEventListener("click", () => {
 });
 
 // ---------- Init ----------
-
-(async () => {
-  const k = await getSessionKey();
-  if (k && sessionKeyInput) sessionKeyInput.value = k;
-})();
 refreshCollected();
