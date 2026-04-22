@@ -230,7 +230,7 @@ export const ErrorDebugPopup: React.FC = () => {
     let message = `${PREFIX}\n\n${trimmed || "(sem texto)"}`;
 
     if (images.length > 0) {
-      message += `\n\n---\nIMAGENS ANEXADAS (${images.length}) — embutidas como data URLs base64. Use-as como referência visual para a tarefa:\n`;
+      message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${images.length}):\n`;
       images.forEach((img, idx) => {
         message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.dataUrl}\n`;
       });
