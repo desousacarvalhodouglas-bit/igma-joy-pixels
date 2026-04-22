@@ -93,6 +93,26 @@ filesInput.addEventListener("change", (e) => {
 
 // ---------- Collected data ----------
 
+const extractProjectIdFromUrl = (url) => {
+  if (!url) return null;
+  const m = url.match(/lovable\.dev\/projects\/([a-f0-9\-]{36})/i);
+  return m ? m[1] : null;
+};
+
+// Procura abas abertas em lovable.dev/projects/{uuid} e retorna o id
+const detectProjectIdFromTabs = () =>
+  new Promise((resolve) => {
+    chrome.tabs.query({ url: "https://lovable.dev/*" }, (tabs) => {
+      if (chrome.runtime.lastError || !tabs?.length) return resolve(null);
+      tabs.sort((a, b) => Number(b.active) - Number(a.active));
+      for (const t of tabs) {
+        const id = extractProjectIdFromUrl(t.url);
+        if (id) return resolve(id);
+      }
+      resolve(null);
+    });
+  });
+
 const loadCollected = () =>
   new Promise((resolve) => {
     chrome.runtime.sendMessage({ type: "GET_COLLECTED_DATA" }, (res) => {
@@ -106,8 +126,22 @@ const loadCollected = () =>
 
 const refreshCollected = async () => {
   const data = await loadCollected();
-  collected.projectId = data.projectId || null;
   collected.bearerToken = data.bearerToken || null;
+
+  // 1) Usa o que o content script já gravou
+  let pid = data.projectId || null;
+
+  // 2) Fallback: detecta direto pelas abas abertas no lovable.dev
+  if (!pid) {
+    pid = await detectProjectIdFromTabs();
+    if (pid) {
+      try {
+        chrome.runtime.sendMessage({ type: "PROJECT_ID_FOUND", projectId: pid });
+      } catch (_) {}
+    }
+  }
+
+  collected.projectId = pid;
   setReadiness();
 };
 
