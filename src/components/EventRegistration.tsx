@@ -72,8 +72,8 @@ export const EventRegistration: React.FC<EventRegistrationProps> = ({
   const handleRegister = async () => {
     if (isPastEvent) {
       toast({
-        title: 'Event has ended',
-        description: 'You cannot register for past events',
+        title: 'Evento já encerrado',
+        description: 'Você não pode se inscrever em eventos passados',
         variant: 'destructive'
       });
       return;
@@ -84,8 +84,8 @@ export const EventRegistration: React.FC<EventRegistrationProps> = ({
         onAuthRequired();
       } else {
         toast({
-          title: 'Sign in required',
-          description: 'Please sign in to register for events',
+          title: 'É necessário entrar',
+          description: 'Entre para se inscrever em eventos',
           variant: 'destructive'
         });
       }
@@ -107,8 +107,8 @@ export const EventRegistration: React.FC<EventRegistrationProps> = ({
 
         setIsRegistered(false);
         toast({
-          title: 'Unregistered',
-          description: 'You have been unregistered from this event'
+          title: 'Inscrição cancelada',
+          description: 'Você cancelou sua inscrição neste evento'
         });
       } else {
         // Register
@@ -124,13 +124,13 @@ export const EventRegistration: React.FC<EventRegistrationProps> = ({
         setIsRegistered(true);
         onRegister();
         toast({
-          title: 'Registered!',
-          description: 'You have successfully registered for this event'
+          title: 'Inscrito!',
+          description: 'Você se inscreveu com sucesso neste evento'
         });
       }
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: 'Erro',
         description: error.message,
         variant: 'destructive'
       });
@@ -149,10 +149,10 @@ export const EventRegistration: React.FC<EventRegistrationProps> = ({
             ? 'bg-gray-400 border-gray-400 cursor-not-allowed' 
             : 'bg-[#1A1A1A] border-[#1A1A1A] group-hover:w-full group-hover:bg-[#FA76FF] group-hover:border-[#FA76FF]'
         }`}
-        aria-label={isPastEvent ? "Event has ended" : isRegistered ? "Unregister from event" : "Register for event"}
+        aria-label={isPastEvent ? "Evento encerrado" : isRegistered ? "Cancelar inscrição" : "Inscrever-se no evento"}
       >
         <span className={`text-white text-[13px] font-normal uppercase relative transition-colors duration-300 ${!isPastEvent && 'group-hover:text-black'}`}>
-          {loading ? "LOADING..." : isPastEvent ? "EVENT ENDED" : isRegistered ? "UNREGISTER" : "REGISTER"}
+          {loading ? "CARREGANDO..." : isPastEvent ? "EVENTO ENCERRADO" : isRegistered ? "CANCELAR INSCRIÇÃO" : "INSCREVER-SE"}
         </span>
         <svg 
           width="12" 
