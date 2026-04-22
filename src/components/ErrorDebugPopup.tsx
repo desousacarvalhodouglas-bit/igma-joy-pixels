@@ -19,48 +19,6 @@ type AttachedImage = {
 const MAX_IMAGE_BYTES = 3_000_000; // ~3MB por imagem
 const MAX_TOTAL_BYTES = 10_000_000; // ~10MB total
 
-const PROMPT_PRESETS: { label: string; value: string }[] = [
-  {
-    label: "Edição premium (limpo)",
-    value: `Edite esta imagem mantendo o objeto principal intacto.
-
-Tarefas:
-- Remover o fundo atual
-- Substituir por um fundo moderno, minimalista e visualmente atraente
-- Ajustar a paleta de cores para tons harmoniosos (ex: azul, roxo, gradiente suave ou cores vibrantes dependendo do contexto)
-- Melhorar iluminação e contraste
-- Aplicar estilo visual moderno, limpo e profissional (sem poluição visual)
-- Adicionar profundidade (leve sombra ou blur no fundo)
-- Manter alta qualidade e nitidez
-
-Estilo desejado:
-- Design semelhante a criativos modernos de marketing digital
-- Aparência premium e chamativa
-- Foco no objeto principal
-
-Saída:
-- Imagem realista ou semi-design (dependendo do contexto)
-- Alta resolução
-
-Salve o resultado em src/assets/ e use no componente apropriado.`,
-  },
-  {
-    label: "Criativo de anúncio (agressivo)",
-    value: `Transforme esta imagem em um criativo de alta conversão.
-
-- Troque o fundo por algo chamativo (gradiente, neon, tech ou lifestyle)
-- Ajuste as cores para ficarem vibrantes e contrastantes
-- Destaque o objeto principal com brilho suave ou glow
-- Use sombras e profundidade para dar efeito 3D
-- Estilo semelhante a anúncios modernos de redes sociais
-- Visual impactante e profissional
-
-Manter o objeto fiel, mas melhorar drasticamente o visual.
-
-Salve o resultado em src/assets/ e use no componente apropriado.`,
-  },
-];
-
 const fileToDataUrl = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -469,25 +427,6 @@ export const ErrorDebugPopup: React.FC = () => {
               >
                 + Imagem
               </button>
-              <select
-                onChange={(e) => {
-                  const preset = PROMPT_PRESETS.find((p) => p.label === e.target.value);
-                  if (preset) setText(preset.value);
-                  e.target.value = "";
-                }}
-                defaultValue=""
-                className="text-xs px-1.5 py-1.5 rounded border border-input bg-background text-foreground hover:bg-accent cursor-pointer max-w-[140px]"
-                title="Inserir prompt pré-definido"
-              >
-                <option value="" disabled>
-                  Presets ▾
-                </option>
-                {PROMPT_PRESETS.map((p) => (
-                  <option key={p.label} value={p.label}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
               {images.length > 0 && (
                 <span className="text-[10px] text-muted-foreground">
                   {images.length} img · {totalKb}KB
