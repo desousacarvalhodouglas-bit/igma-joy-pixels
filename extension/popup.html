@@ -158,6 +158,13 @@
     <button id="send">🚀 Enviar para o Lovable</button>
   </div>
 
+  <label for="sessionKey">🔑 Chave de sessão (proxy)</label>
+  <input id="sessionKey" type="text" placeholder="cole aqui sua chave"
+    style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:12px;font-family:inherit;" />
+  <div class="row">
+    <button id="saveSessionKey" class="secondary">💾 Salvar chave</button>
+  </div>
+
   <div class="row">
     <button id="refresh" class="secondary">🔄 Recarregar dados</button>
     <button id="clear" class="secondary">🗑️ Limpar captura</button>
@@ -165,7 +172,7 @@
 
   <div id="status"></div>
 
-  <div class="footer">v4.1.0 · auto-detect project id</div>
+  <div class="footer">v4.2.0 · proxy igual ao 2_frontend</div>
 
   <script src="popup.js"></script>
 </body>

@@ -283,4 +283,8 @@ clearBtn.addEventListener("click", () => {
 
 // ---------- Init ----------
 
+(async () => {
+  const k = await getSessionKey();
+  if (k && sessionKeyInput) sessionKeyInput.value = k;
+})();
 refreshCollected();
