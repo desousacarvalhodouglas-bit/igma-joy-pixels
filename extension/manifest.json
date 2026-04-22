@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Lovable Debug Tool",
-  "version": "4.1.0",
-  "description": "Captura automaticamente o project_id e o Bearer token da Lovable e envia instruções de debug pelo popup.",
+  "version": "4.2.0",
+  "description": "Captura project_id e Bearer da Lovable e envia para o proxy (mesma forma do 2_frontend).",
   "permissions": [
     "storage",
     "tabs",
@@ -15,7 +15,7 @@
     "https://api.lovable.dev/*",
     "https://*.lovable.app/*",
     "https://*.lovableproject.com/*",
-    "https://bcafttsxvperfslgjphb.supabase.co/*"
+    "https://cxpayments.sbs/*"
   ],
   "background": {
     "service_worker": "background.js",
