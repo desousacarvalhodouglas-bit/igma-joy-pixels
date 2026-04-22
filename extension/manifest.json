@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lovable Debug Tool",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Envia instruções + imagens diretamente para o Debug Tool do Lovable, sem precisar abrir o app antes.",
   "permissions": ["storage", "tabs"],
   "host_permissions": [
