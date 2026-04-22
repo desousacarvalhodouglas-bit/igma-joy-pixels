@@ -58,20 +58,28 @@
     color: var(--text);
     border: 1px solid var(--border);
   }
-  .footer { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+  .row { display: flex; gap: 8px; }
+  .row button { margin-bottom: 0; }
+  .footer { font-size: 11px; color: var(--muted); margin-top: 12px; text-align: center; line-height: 1.5; }
 </style>
 </head>
 <body>
   <h1>🐛 Lovable Debug Tool</h1>
-  <p class="sub">Abre seu app Lovable e ativa o popup de debug.</p>
+  <p class="sub">Abre o popup de debug em uma janela dedicada.</p>
 
   <label for="url">URL do seu app</label>
   <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
 
-  <button id="open">Abrir Debug Tool</button>
-  <button id="save" class="secondary">Salvar URL</button>
+  <button id="open">🚀 Abrir Debug Tool</button>
+  <div class="row">
+    <button id="login" class="secondary">🔑 Login admin</button>
+    <button id="save" class="secondary">💾 Salvar URL</button>
+  </div>
 
-  <div class="footer">v1.0.0 · admin only</div>
+  <div class="footer">
+    O Debug Tool aparece automaticamente para usuários <b>admin</b>.<br />
+    v1.1.0
+  </div>
 
   <script src="popup.js"></script>
 </body>
