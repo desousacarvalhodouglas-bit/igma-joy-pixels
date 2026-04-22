@@ -14,11 +14,11 @@ import { SEOHead } from '@/components/SEOHead';
 import { z } from 'zod';
 
 const eventSchema = z.object({
-  eventName: z.string().trim().min(1, 'Event name is required').max(200, 'Event name must be less than 200 characters'),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Start time must be in HH:MM format (e.g., 15:00)'),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'End time must be in HH:MM format (e.g., 16:00)'),
-  location: z.string().trim().min(1, 'Location is required').max(300, 'Location must be less than 300 characters'),
-  description: z.string().trim().min(1, 'Description is required').max(2000, 'Description must be less than 2000 characters'),
+  eventName: z.string().trim().min(1, 'Nome do evento é obrigatório').max(200, 'Nome deve ter menos de 200 caracteres'),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Hora de início deve estar no formato HH:MM (ex.: 15:00)'),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Hora de término deve estar no formato HH:MM (ex.: 16:00)'),
+  location: z.string().trim().min(1, 'Localização é obrigatória').max(300, 'Localização deve ter menos de 300 caracteres'),
+  description: z.string().trim().min(1, 'Descrição é obrigatória').max(2000, 'Descrição deve ter menos de 2000 caracteres'),
 });
 
 const CreateEvent = () => {
@@ -74,13 +74,13 @@ const CreateEvent = () => {
       // Validate file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
-        toast.error('Please upload a JPG, PNG, GIF, or WebP image');
+        toast.error('Envie uma imagem JPG, PNG, GIF ou WebP');
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image must be less than 5MB');
+        toast.error('A imagem deve ter menos de 5MB');
         return;
       }
 
@@ -102,15 +102,15 @@ const CreateEvent = () => {
 
     // Validate date fields first
     if (!startDate) {
-      toast.error('Please select a start date');
+      toast.error('Selecione uma data de início');
       return;
     }
     if (!endDate) {
-      toast.error('Please select an end date');
+      toast.error('Selecione uma data de término');
       return;
     }
     if (!imageFile) {
-      toast.error('Please add an event image');
+      toast.error('Adicione uma imagem para o evento');
       return;
     }
 
@@ -139,7 +139,7 @@ const CreateEvent = () => {
     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
 
     if (endDateTime <= startDateTime) {
-      toast.error('End date/time must be after start date/time');
+      toast.error('A data/hora de término deve ser posterior à de início');
       return;
     }
 
@@ -178,7 +178,7 @@ const CreateEvent = () => {
         .eq('user_id', user.id)
         .single();
 
-      const creatorName = profile?.display_name || user.email?.split('@')[0] || 'Anonymous';
+      const creatorName = profile?.display_name || user.email?.split('@')[0] || 'Anônimo';
 
       // Insert event into database
       const { error: insertError } = await supabase
@@ -196,11 +196,11 @@ const CreateEvent = () => {
 
       if (insertError) throw insertError;
 
-      toast.success('Event created successfully!');
+      toast.success('Evento criado com sucesso!');
       navigate('/my-events');
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error creating event:', error);
-      toast.error('Failed to create event. Please try again.');
+      toast.error('Falha ao criar o evento. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -209,8 +209,8 @@ const CreateEvent = () => {
   return (
     <>
       <SEOHead 
-        title="Create Event"
-        description="Create and publish a new event for your community to discover and join"
+        title="Criar Evento"
+        description="Crie e publique um novo evento para sua comunidade descobrir e participar"
       />
       <AuthSheet isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       
@@ -227,7 +227,7 @@ const CreateEvent = () => {
                 <img src={imagePreview} alt="Event preview" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-black text-[11px] font-medium uppercase tracking-wider">
-                  ADD IMAGE
+                  ADICIONAR IMAGEM
                 </span>
               )}
               <input
@@ -244,7 +244,7 @@ const CreateEvent = () => {
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-3 text-[13px] font-medium uppercase tracking-wider border border-black bg-white hover:bg-black hover:text-white transition-colors"
               >
-                Change image
+                Trocar imagem
               </button>
             )}
               </div>
@@ -253,7 +253,7 @@ const CreateEvent = () => {
               <div className="space-y-4 md:space-y-6">
                 <input
                   type="text"
-                  placeholder="Event name"
+                  placeholder="Nome do evento"
                   className="w-full text-black text-[32px] md:text-[48px] lg:text-[56px] font-medium leading-none mb-4 md:mb-8 focus:outline-none bg-transparent border-none p-0 placeholder:text-[#C4C4C4]"
                   value={eventName}
                   onChange={(e) => setEventName(e.target.value)}
@@ -265,7 +265,7 @@ const CreateEvent = () => {
                   <div className="grid grid-cols-[80px_1fr_80px] md:grid-cols-[100px_1fr_100px] gap-0 border border-black mb-4 md:mb-6">
                     <div className="flex items-center justify-start gap-1.5 md:gap-2 border-r border-black px-2 md:px-3 py-2 md:py-3">
                       <div className="w-1.5 md:w-2 h-1.5 md:h-2 bg-black rounded-full"></div>
-                      <span className="text-[14px] md:text-[17px] font-medium">Start</span>
+                      <span className="text-[14px] md:text-[17px] font-medium">Início</span>
                     </div>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -275,7 +275,7 @@ const CreateEvent = () => {
                             !startDate && "text-[#C4C4C4]"
                           )}
                         >
-                          {startDate ? format(startDate, "EEE, dd MMM") : "Thu, 28 Oct"}
+                          {startDate ? format(startDate, "EEE, dd MMM") : "Qui, 28 Out"}
                         </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -301,7 +301,7 @@ const CreateEvent = () => {
                   <div className="grid grid-cols-[80px_1fr_80px] md:grid-cols-[100px_1fr_100px] gap-0 border border-black">
                 <div className="flex items-center justify-start gap-1.5 md:gap-2 border-r border-black px-2 md:px-3 py-2 md:py-3">
                   <div className="w-1.5 md:w-2 h-1.5 md:h-2 bg-black rounded-full"></div>
-                  <span className="text-[14px] md:text-[17px] font-medium">End</span>
+                  <span className="text-[14px] md:text-[17px] font-medium">Término</span>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -311,7 +311,7 @@ const CreateEvent = () => {
                         !endDate && "text-[#C4C4C4]"
                       )}
                     >
-                      {endDate ? format(endDate, "EEE, dd MMM") : "Thu, 28 Oct"}
+                      {endDate ? format(endDate, "EEE, dd MMM") : "Qui, 28 Out"}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -338,7 +338,7 @@ const CreateEvent = () => {
             <input
               ref={locationInputRef}
               type="text"
-              placeholder="Add event location"
+              placeholder="Adicione a localização do evento"
               className="w-full px-3 md:px-4 py-2 md:py-3 text-[14px] md:text-[17px] text-black border border-black focus:outline-none placeholder:text-[#C4C4C4]"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -346,7 +346,7 @@ const CreateEvent = () => {
 
             {/* Description */}
             <textarea
-              placeholder="Add description"
+              placeholder="Adicione uma descrição"
               rows={6}
               className="w-full px-3 md:px-4 py-2 md:py-3 text-[14px] md:text-[17px] text-black border border-black focus:outline-none resize-none placeholder:text-[#C4C4C4]"
               value={description}
@@ -359,10 +359,10 @@ const CreateEvent = () => {
                     onClick={handleSubmit}
                     disabled={isSubmitting}
                     className="flex h-[50px] justify-center items-center gap-2.5 border relative px-2.5 py-3.5 border-solid transition-all duration-300 ease-in-out w-[calc(100%-50px)] z-10 bg-[#1A1A1A] border-[#1A1A1A] group-hover:w-full group-hover:bg-[#FA76FF] group-hover:border-[#FA76FF] disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Create event"
+                    aria-label="Criar evento"
                   >
                     <span className="text-white text-[13px] font-normal uppercase relative transition-colors duration-300 group-hover:text-black">
-                      {isSubmitting ? 'CREATING...' : 'CREATE EVENT'}
+                      {isSubmitting ? 'CRIANDO...' : 'CRIAR EVENTO'}
                     </span>
                     <svg 
                       width="12" 
