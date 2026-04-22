@@ -1,4 +1,6 @@
-const DEFAULT_URL = "https://id-preview--4cd1da86-e6a4-4c5c-9228-726b5a96b927.lovable.app";
+const PROJECT_ID = "4cd1da86-e6a4-4c5c-9228-726b5a96b927";
+const DEFAULT_URL = `https://id-preview--${PROJECT_ID}.lovable.app`;
+const PUBLISHED_URL = "https://igma-joy-pixels.lovable.app";
 const SUPABASE_URL = "https://bcafttsxvperfslgjphb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYWZ0dHN4dnBlcmZzbGdqcGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc5NzQwNTYsImV4cCI6MjA4MzU1MDA1Nn0.eaCDIVgdvm31TCK1qTnbdh-SNUw718UFAsGWd7ifvPc";
 const BUCKET = "debug-uploads";
@@ -11,12 +13,10 @@ const IMAGE_INSTRUCTIONS = `INSTRUÇÕES PARA IMAGENS ANEXADAS:
 NÃO responda dizendo que não consegue processar imagens — você CONSEGUE usando as URLs abaixo.`;
 
 const $ = (id) => document.getElementById(id);
-const urlInput = $("url");
 const promptInput = $("prompt");
 const filesInput = $("files");
 const thumbs = $("thumbs");
 const sendBtn = $("send");
-const saveBtn = $("save");
 const emailInput = $("email");
 const passwordInput = $("password");
 const saveCredsBtn = $("saveCreds");
@@ -25,11 +25,15 @@ const clearCredsBtn = $("clearCreds");
 const statusEl = $("status");
 const authDot = $("authDot");
 const authText = $("authText");
+const projectInfo = $("projectInfo");
+const tabSelect = $("tabSelect");
 
 let attached = [];
+let detectedTabs = []; // { id, url, title }
+let selectedUrl = null;
 
-const getUrl = () => (urlInput.value.trim() || DEFAULT_URL).replace(/\/+$/, "");
-const isLovableUrl = (value) => /^https:\/\/.+\.(lovable\.app|lovableproject\.com)(\/|$)/i.test(value || "");
+const isLovableUrl = (value) =>
+  /^https:\/\/.+\.(lovable\.app|lovableproject\.com)(\/|$)/i.test(value || "");
 
 const setStatus = (msg, kind = "info") => {
   statusEl.innerHTML = msg ? `<div class="status ${kind}">${msg}</div>` : "";
@@ -62,28 +66,94 @@ filesInput.addEventListener("change", (e) => {
   renderThumbs();
 });
 
-// --- Auth helpers (login direto no Supabase + token salvo) ---
+// --- Project auto-detection ---
+
+const detectLovableTabs = () =>
+  new Promise((resolve) => {
+    chrome.tabs.query(
+      { url: ["https://*.lovable.app/*", "https://*.lovableproject.com/*"] },
+      (tabs) => resolve(tabs || [])
+    );
+  });
+
+const renderProjectDetection = async () => {
+  const tabs = await detectLovableTabs();
+  detectedTabs = tabs;
+
+  // Active tab first
+  const [activeTab] = await new Promise((r) =>
+    chrome.tabs.query({ active: true, currentWindow: true }, r)
+  );
+  const activeIsLovable = activeTab && isLovableUrl(activeTab.url);
+
+  if (activeIsLovable) {
+    selectedUrl = activeTab.url.replace(/\/+$/, "");
+    projectInfo.innerHTML = `
+      <div class="detected">
+        ✓ Projeto detectado na aba ativa
+        <div class="detected-url">${selectedUrl}</div>
+      </div>
+    `;
+    tabSelect.style.display = "none";
+    return;
+  }
+
+  if (tabs.length === 1) {
+    selectedUrl = tabs[0].url.replace(/\/+$/, "");
+    projectInfo.innerHTML = `
+      <div class="detected">
+        ✓ 1 aba Lovable encontrada
+        <div class="detected-url">${selectedUrl}</div>
+      </div>
+    `;
+    tabSelect.style.display = "none";
+    return;
+  }
+
+  if (tabs.length > 1) {
+    selectedUrl = tabs[0].url.replace(/\/+$/, "");
+    projectInfo.innerHTML = `<div class="detected">✓ ${tabs.length} abas Lovable encontradas — escolha:</div>`;
+    tabSelect.style.display = "block";
+    tabSelect.innerHTML = tabs
+      .map(
+        (t, i) =>
+          `<option value="${t.url}" ${i === 0 ? "selected" : ""}>${(t.title || t.url).slice(0, 50)}</option>`
+      )
+      .join("");
+    tabSelect.onchange = () => {
+      selectedUrl = tabSelect.value.replace(/\/+$/, "");
+    };
+    return;
+  }
+
+  // Fallback: nenhuma aba aberta — usaremos o projeto padrão
+  selectedUrl = DEFAULT_URL;
+  projectInfo.innerHTML = `
+    <div class="detected warn">
+      ⚠ Nenhuma aba Lovable aberta — uma nova será criada
+      <div class="detected-url">${DEFAULT_URL}</div>
+    </div>
+  `;
+  tabSelect.style.display = "none";
+};
+
+// --- Auth helpers ---
 
 const supabaseLogin = async (email, password) => {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: "POST",
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      "Content-Type": "application/json",
-    },
+    headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error_description || json.msg || `HTTP ${res.status}`);
-  return json; // { access_token, refresh_token, user, expires_at, expires_in, token_type }
+  return json;
 };
 
 const refreshSessionIfNeeded = async (session) => {
   if (!session) return null;
   const now = Math.floor(Date.now() / 1000);
-  // Refresh if expires in less than 5 minutes
   if (session.expires_at && session.expires_at - now > 300) return session;
-
   try {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
       method: "POST",
@@ -104,11 +174,8 @@ const getStoredCreds = () =>
 const ensureValidSession = async () => {
   const { debugEmail, debugPassword, debugSession } = await getStoredCreds();
   if (!debugEmail || !debugPassword) return null;
-
   let session = debugSession ? await refreshSessionIfNeeded(debugSession) : null;
-  if (!session) {
-    session = await supabaseLogin(debugEmail, debugPassword);
-  }
+  if (!session) session = await supabaseLogin(debugEmail, debugPassword);
   await chrome.storage.local.set({ debugSession: session });
   return session;
 };
@@ -116,7 +183,7 @@ const ensureValidSession = async () => {
 const updateAuthIndicator = async () => {
   const { debugEmail } = await getStoredCreds();
   if (!debugEmail) {
-    setAuthStatus(false, "Sem credenciais salvas — abra a seção 🔑");
+    setAuthStatus(false, "Sem credenciais — abra 🔑 abaixo");
     return;
   }
   try {
@@ -133,24 +200,12 @@ const updateAuthIndicator = async () => {
 
 // --- Initial load ---
 
-chrome.storage.local.get(["appUrl", "lastPrompt", "debugEmail", "debugPassword"], ({ appUrl, lastPrompt, debugEmail, debugPassword }) => {
+chrome.storage.local.get(["lastPrompt", "debugEmail", "debugPassword"], ({ lastPrompt, debugEmail, debugPassword }) => {
   if (lastPrompt) promptInput.value = lastPrompt;
   if (debugEmail) emailInput.value = debugEmail;
   if (debugPassword) passwordInput.value = debugPassword;
-
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const activeUrl = tabs?.[0]?.url;
-    urlInput.value = isLovableUrl(activeUrl) ? activeUrl.replace(/\/+$/, "") : (appUrl || DEFAULT_URL);
-  });
-
+  renderProjectDetection();
   updateAuthIndicator();
-});
-
-saveBtn.addEventListener("click", () => {
-  chrome.storage.local.set({ appUrl: getUrl() }, () => {
-    saveBtn.textContent = "✓ Salvo";
-    setTimeout(() => (saveBtn.textContent = "💾 Salvar URL"), 1200);
-  });
 });
 
 saveCredsBtn.addEventListener("click", async () => {
@@ -214,7 +269,22 @@ const uploadImage = async (img, accessToken) => {
   return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 };
 
-// --- Send action ---
+// --- Send ---
+
+const buildTargetUrl = (baseUrl) => {
+  const u = new URL(baseUrl);
+  u.searchParams.set("debug", "auto");
+  u.hash = "debug-tool";
+  return u.toString();
+};
+
+const findExistingTab = async (targetBaseUrl) => {
+  const origin = new URL(targetBaseUrl).origin;
+  const tabs = await new Promise((r) =>
+    chrome.tabs.query({ url: `${origin}/*` }, r)
+  );
+  return tabs?.[0] || null;
+};
 
 sendBtn.addEventListener("click", async () => {
   const prompt = promptInput.value.trim();
@@ -222,11 +292,14 @@ sendBtn.addEventListener("click", async () => {
     setStatus("Escreva a instrução primeiro.", "error");
     return;
   }
+  if (!selectedUrl) {
+    setStatus("Nenhum projeto selecionado.", "error");
+    return;
+  }
   sendBtn.disabled = true;
-  chrome.storage.local.set({ lastPrompt: prompt, appUrl: getUrl() });
+  chrome.storage.local.set({ lastPrompt: prompt });
 
   try {
-    // 1. Garante sessão válida (login automático)
     setStatus("Autenticando...", "info");
     let session = null;
     try {
@@ -238,7 +311,6 @@ sendBtn.addEventListener("click", async () => {
       throw new Error("Sem credenciais admin salvas. Abra '🔑 Credenciais admin' e salve email/senha.");
     }
 
-    // 2. Upload das imagens (se houver)
     let urls = [];
     if (attached.length > 0) {
       setStatus(`Enviando ${attached.length} imagem(ns)...`, "info");
@@ -248,7 +320,6 @@ sendBtn.addEventListener("click", async () => {
       }
     }
 
-    // 3. Monta a mensagem
     let message = `${PROMPT_PREFIX}\n\n${prompt}`;
     if (urls.length > 0) {
       message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${urls.length}):\n`;
@@ -257,15 +328,24 @@ sendBtn.addEventListener("click", async () => {
       });
     }
 
-    // 4. Persiste payload + sessão para o content script injetar no app
     await chrome.storage.local.set({
       pendingDebugMessage: message,
       pendingSession: session,
       pendingAt: Date.now(),
     });
 
-    setStatus("✓ Abrindo Lovable...", "success");
-    chrome.tabs.create({ url: `${getUrl()}/?debug=auto#debug-tool` });
+    setStatus("✓ Conectando ao projeto...", "success");
+
+    // Reaproveita aba existente quando possível, em vez de criar nova
+    const targetUrl = buildTargetUrl(selectedUrl);
+    const existing = await findExistingTab(selectedUrl);
+    if (existing) {
+      await chrome.tabs.update(existing.id, { url: targetUrl, active: true });
+      await chrome.windows.update(existing.windowId, { focused: true });
+    } else {
+      await chrome.tabs.create({ url: targetUrl });
+    }
+
     attached = [];
     renderThumbs();
     setTimeout(() => window.close(), 600);
