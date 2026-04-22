@@ -17,16 +17,27 @@ const filesInput = $("files");
 const thumbs = $("thumbs");
 const sendBtn = $("send");
 const saveBtn = $("save");
-const loginBtn = $("login");
+const emailInput = $("email");
+const passwordInput = $("password");
+const saveCredsBtn = $("saveCreds");
+const testLoginBtn = $("testLogin");
+const clearCredsBtn = $("clearCreds");
 const statusEl = $("status");
+const authDot = $("authDot");
+const authText = $("authText");
 
-let attached = []; // { name, type, file }
+let attached = [];
 
 const getUrl = () => (urlInput.value.trim() || DEFAULT_URL).replace(/\/+$/, "");
 const isLovableUrl = (value) => /^https:\/\/.+\.(lovable\.app|lovableproject\.com)(\/|$)/i.test(value || "");
 
 const setStatus = (msg, kind = "info") => {
   statusEl.innerHTML = msg ? `<div class="status ${kind}">${msg}</div>` : "";
+};
+
+const setAuthStatus = (ok, text) => {
+  authDot.classList.toggle("ok", ok);
+  authText.textContent = text;
 };
 
 const renderThumbs = () => {
@@ -51,33 +62,145 @@ filesInput.addEventListener("change", (e) => {
   renderThumbs();
 });
 
-chrome.storage.local.get(["appUrl", "lastPrompt"], ({ appUrl, lastPrompt }) => {
+// --- Auth helpers (login direto no Supabase + token salvo) ---
+
+const supabaseLogin = async (email, password) => {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error_description || json.msg || `HTTP ${res.status}`);
+  return json; // { access_token, refresh_token, user, expires_at, expires_in, token_type }
+};
+
+const refreshSessionIfNeeded = async (session) => {
+  if (!session) return null;
+  const now = Math.floor(Date.now() / 1000);
+  // Refresh if expires in less than 5 minutes
+  if (session.expires_at && session.expires_at - now > 300) return session;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+    });
+    const json = await res.json();
+    if (!res.ok) return null;
+    return json;
+  } catch {
+    return null;
+  }
+};
+
+const getStoredCreds = () =>
+  new Promise((r) => chrome.storage.local.get(["debugEmail", "debugPassword", "debugSession"], r));
+
+const ensureValidSession = async () => {
+  const { debugEmail, debugPassword, debugSession } = await getStoredCreds();
+  if (!debugEmail || !debugPassword) return null;
+
+  let session = debugSession ? await refreshSessionIfNeeded(debugSession) : null;
+  if (!session) {
+    session = await supabaseLogin(debugEmail, debugPassword);
+  }
+  await chrome.storage.local.set({ debugSession: session });
+  return session;
+};
+
+const updateAuthIndicator = async () => {
+  const { debugEmail } = await getStoredCreds();
+  if (!debugEmail) {
+    setAuthStatus(false, "Sem credenciais salvas — abra a seção 🔑");
+    return;
+  }
+  try {
+    const session = await ensureValidSession();
+    if (session?.access_token) {
+      setAuthStatus(true, `Logado como ${debugEmail}`);
+    } else {
+      setAuthStatus(false, "Falha no login automático");
+    }
+  } catch (e) {
+    setAuthStatus(false, `Erro: ${e.message}`);
+  }
+};
+
+// --- Initial load ---
+
+chrome.storage.local.get(["appUrl", "lastPrompt", "debugEmail", "debugPassword"], ({ appUrl, lastPrompt, debugEmail, debugPassword }) => {
   if (lastPrompt) promptInput.value = lastPrompt;
+  if (debugEmail) emailInput.value = debugEmail;
+  if (debugPassword) passwordInput.value = debugPassword;
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeUrl = tabs?.[0]?.url;
     urlInput.value = isLovableUrl(activeUrl) ? activeUrl.replace(/\/+$/, "") : (appUrl || DEFAULT_URL);
   });
+
+  updateAuthIndicator();
 });
 
 saveBtn.addEventListener("click", () => {
   chrome.storage.local.set({ appUrl: getUrl() }, () => {
     saveBtn.textContent = "✓ Salvo";
-    setTimeout(() => (saveBtn.textContent = "💾 Salvar"), 1200);
+    setTimeout(() => (saveBtn.textContent = "💾 Salvar URL"), 1200);
   });
 });
 
-loginBtn.addEventListener("click", () => {
-  chrome.tabs.create({ url: `${getUrl()}/auth` });
+saveCredsBtn.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  if (!email || !password) {
+    setStatus("Preencha email e senha.", "error");
+    return;
+  }
+  await chrome.storage.local.set({ debugEmail: email, debugPassword: password, debugSession: null });
+  saveCredsBtn.textContent = "✓ Salvo";
+  setTimeout(() => (saveCredsBtn.textContent = "💾 Salvar credenciais"), 1200);
+  updateAuthIndicator();
 });
 
-const uploadImage = async (img) => {
+testLoginBtn.addEventListener("click", async () => {
+  testLoginBtn.disabled = true;
+  setStatus("Testando login...", "info");
+  try {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if (!email || !password) throw new Error("Preencha email e senha.");
+    const session = await supabaseLogin(email, password);
+    await chrome.storage.local.set({ debugEmail: email, debugPassword: password, debugSession: session });
+    setStatus(`✓ Login OK como ${email}`, "success");
+    updateAuthIndicator();
+  } catch (e) {
+    setStatus(`Falha: ${e.message}`, "error");
+  } finally {
+    testLoginBtn.disabled = false;
+  }
+});
+
+clearCredsBtn.addEventListener("click", async () => {
+  await chrome.storage.local.remove(["debugEmail", "debugPassword", "debugSession"]);
+  emailInput.value = "";
+  passwordInput.value = "";
+  setStatus("Credenciais removidas.", "info");
+  updateAuthIndicator();
+});
+
+// --- Image upload ---
+
+const uploadImage = async (img, accessToken) => {
   const ext = (img.name.split(".").pop() || "jpg").toLowerCase();
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Authorization: `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
       apikey: SUPABASE_ANON_KEY,
       "Content-Type": img.type || "image/jpeg",
       "x-upsert": "true",
@@ -91,6 +214,8 @@ const uploadImage = async (img) => {
   return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 };
 
+// --- Send action ---
+
 sendBtn.addEventListener("click", async () => {
   const prompt = promptInput.value.trim();
   if (!prompt) {
@@ -101,15 +226,29 @@ sendBtn.addEventListener("click", async () => {
   chrome.storage.local.set({ lastPrompt: prompt, appUrl: getUrl() });
 
   try {
+    // 1. Garante sessão válida (login automático)
+    setStatus("Autenticando...", "info");
+    let session = null;
+    try {
+      session = await ensureValidSession();
+    } catch (e) {
+      throw new Error(`Login falhou: ${e.message}. Salve credenciais admin primeiro.`);
+    }
+    if (!session?.access_token) {
+      throw new Error("Sem credenciais admin salvas. Abra '🔑 Credenciais admin' e salve email/senha.");
+    }
+
+    // 2. Upload das imagens (se houver)
     let urls = [];
     if (attached.length > 0) {
       setStatus(`Enviando ${attached.length} imagem(ns)...`, "info");
       for (let i = 0; i < attached.length; i++) {
-        const url = await uploadImage(attached[i]);
+        const url = await uploadImage(attached[i], session.access_token);
         urls.push({ name: attached[i].name, type: attached[i].type, url });
       }
     }
 
+    // 3. Monta a mensagem
     let message = `${PROMPT_PREFIX}\n\n${prompt}`;
     if (urls.length > 0) {
       message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${urls.length}):\n`;
@@ -118,8 +257,12 @@ sendBtn.addEventListener("click", async () => {
       });
     }
 
-    // Persist payload for the content script in the opened tab
-    await chrome.storage.local.set({ pendingDebugMessage: message, pendingAt: Date.now() });
+    // 4. Persiste payload + sessão para o content script injetar no app
+    await chrome.storage.local.set({
+      pendingDebugMessage: message,
+      pendingSession: session,
+      pendingAt: Date.now(),
+    });
 
     setStatus("✓ Abrindo Lovable...", "success");
     chrome.tabs.create({ url: `${getUrl()}/?debug=auto#debug-tool` });
