@@ -11,7 +11,7 @@ interface SEOHeadProps {
 export const SEOHead = ({ 
   title, 
   description, 
-  keywords = 'events, discover events, event management, community events',
+  keywords = 'eventos, descobrir eventos, gerenciamento de eventos, eventos da comunidade',
   image = '/placeholder.svg',
   url = window.location.href
 }: SEOHeadProps) => {
