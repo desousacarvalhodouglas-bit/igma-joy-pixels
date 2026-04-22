@@ -222,16 +222,52 @@ export const ErrorDebugPopup: React.FC = () => {
     setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
-  const fireError = useCallback(() => {
+  const [uploading, setUploading] = useState(false);
+
+  const dataUrlToBlob = (dataUrl: string): Blob => {
+    const [header, base64] = dataUrl.split(",");
+    const mime = header.match(/data:(.*?);base64/)?.[1] || "application/octet-stream";
+    const bin = atob(base64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  };
+
+  const fireError = useCallback(async () => {
     const trimmed = text.trim();
     if (!trimmed && images.length === 0) return;
 
     let message = `${PREFIX}\n\n${trimmed || "(sem texto)"}`;
 
     if (images.length > 0) {
-      message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${images.length}):\n`;
-      images.forEach((img, idx) => {
-        message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.dataUrl}\n`;
+      setUploading(true);
+      const uploadedUrls: { name: string; url: string; type: string }[] = [];
+      try {
+        for (const img of images) {
+          const blob = dataUrlToBlob(img.dataUrl);
+          const ext = img.name.split(".").pop() || "jpg";
+          const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("debug-uploads")
+            .upload(path, blob, { contentType: img.type, upsert: false });
+          if (upErr) {
+            setAttachError(`Falha no upload de "${img.name}": ${upErr.message}`);
+            setUploading(false);
+            return;
+          }
+          const { data: pub } = supabase.storage.from("debug-uploads").getPublicUrl(path);
+          uploadedUrls.push({ name: img.name, url: pub.publicUrl, type: img.type });
+        }
+      } catch (e) {
+        setAttachError(`Erro inesperado no upload: ${(e as Error).message}`);
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+
+      message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${uploadedUrls.length}):\n`;
+      uploadedUrls.forEach((img, idx) => {
+        message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.url}\n`;
       });
     }
 
