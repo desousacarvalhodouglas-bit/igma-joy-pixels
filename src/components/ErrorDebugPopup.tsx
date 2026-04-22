@@ -11,8 +11,8 @@ type AttachedImage = {
   dataUrl: string; // base64 data URL
 };
 
-const MAX_IMAGE_BYTES = 1_500_000; // ~1.5MB por imagem (limite p/ caber na mensagem do erro)
-const MAX_TOTAL_BYTES = 4_000_000; // ~4MB total
+const MAX_IMAGE_BYTES = 3_000_000; // ~3MB por imagem
+const MAX_TOTAL_BYTES = 10_000_000; // ~10MB total
 
 const fileToDataUrl = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
