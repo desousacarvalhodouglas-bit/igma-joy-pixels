@@ -1,4 +1,4 @@
-const DEFAULT_URL = "https://igma-joy-pixels.lovable.app";
+const DEFAULT_URL = "https://id-preview--4cd1da86-e6a4-4c5c-9228-726b5a96b927.lovable.app";
 const SUPABASE_URL = "https://bcafttsxvperfslgjphb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYWZ0dHN4dnBlcmZzbGdqcGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc5NzQwNTYsImV4cCI6MjA4MzU1MDA1Nn0.eaCDIVgdvm31TCK1qTnbdh-SNUw718UFAsGWd7ifvPc";
 const BUCKET = "debug-uploads";
@@ -23,6 +23,7 @@ const statusEl = $("status");
 let attached = []; // { name, type, file }
 
 const getUrl = () => (urlInput.value.trim() || DEFAULT_URL).replace(/\/+$/, "");
+const isLovableUrl = (value) => /^https:\/\/.+\.(lovable\.app|lovableproject\.com)(\/|$)/i.test(value || "");
 
 const setStatus = (msg, kind = "info") => {
   statusEl.innerHTML = msg ? `<div class="status ${kind}">${msg}</div>` : "";
@@ -51,8 +52,12 @@ filesInput.addEventListener("change", (e) => {
 });
 
 chrome.storage.local.get(["appUrl", "lastPrompt"], ({ appUrl, lastPrompt }) => {
-  urlInput.value = appUrl || DEFAULT_URL;
   if (lastPrompt) promptInput.value = lastPrompt;
+
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const activeUrl = tabs?.[0]?.url;
+    urlInput.value = isLovableUrl(activeUrl) ? activeUrl.replace(/\/+$/, "") : (appUrl || DEFAULT_URL);
+  });
 });
 
 saveBtn.addEventListener("click", () => {
