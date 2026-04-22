@@ -1,22 +1,33 @@
 {
   "manifest_version": 3,
   "name": "Lovable Debug Tool",
-  "version": "3.2.0",
-  "description": "Envia instruções + imagens diretamente para o Debug Tool do Lovable, com login automático Google ou email/senha.",
-  "permissions": ["storage", "tabs", "identity"],
+  "version": "4.0.0",
+  "description": "Captura automaticamente o project_id e o Bearer token da Lovable e envia instruções de debug pelo popup.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "webRequest",
+    "activeTab",
+    "scripting"
+  ],
   "host_permissions": [
+    "https://lovable.dev/*",
+    "https://api.lovable.dev/*",
     "https://*.lovable.app/*",
     "https://*.lovableproject.com/*",
-    "https://bcafttsxvperfslgjphb.supabase.co/*",
-    "https://accounts.google.com/*"
+    "https://bcafttsxvperfslgjphb.supabase.co/*"
   ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
   "content_scripts": [
     {
-      "matches": ["https://*.lovable.app/*", "https://*.lovableproject.com/*"],
+      "matches": ["https://lovable.dev/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
