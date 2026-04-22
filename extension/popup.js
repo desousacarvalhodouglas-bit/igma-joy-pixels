@@ -22,6 +22,7 @@ const passwordInput = $("password");
 const saveCredsBtn = $("saveCreds");
 const testLoginBtn = $("testLogin");
 const clearCredsBtn = $("clearCreds");
+const googleLoginBtn = $("googleLogin");
 const statusEl = $("status");
 const authDot = $("authDot");
 const authText = $("authText");
@@ -169,21 +170,98 @@ const refreshSessionIfNeeded = async (session) => {
 };
 
 const getStoredCreds = () =>
-  new Promise((r) => chrome.storage.local.get(["debugEmail", "debugPassword", "debugSession"], r));
+  new Promise((r) =>
+    chrome.storage.local.get(
+      ["debugEmail", "debugPassword", "debugSession", "debugAuthMode"],
+      r
+    )
+  );
 
 const ensureValidSession = async () => {
-  const { debugEmail, debugPassword, debugSession } = await getStoredCreds();
+  const { debugEmail, debugPassword, debugSession, debugAuthMode } = await getStoredCreds();
+
+  if (debugAuthMode === "google") {
+    if (!debugSession) return null;
+    const refreshed = await refreshSessionIfNeeded(debugSession);
+    if (refreshed) {
+      await chrome.storage.local.set({ debugSession: refreshed });
+      return refreshed;
+    }
+    return null;
+  }
+
   if (!debugEmail || !debugPassword) return null;
   let session = debugSession ? await refreshSessionIfNeeded(debugSession) : null;
   if (!session) session = await supabaseLogin(debugEmail, debugPassword);
-  await chrome.storage.local.set({ debugSession: session });
+  await chrome.storage.local.set({ debugSession: session, debugAuthMode: "password" });
   return session;
 };
 
+// --- Google OAuth via chrome.identity.launchWebAuthFlow ---
+
+const googleSignIn = async () => {
+  const redirectUri = chrome.identity.getRedirectURL();
+  const authorizeUrl =
+    `${SUPABASE_URL}/auth/v1/authorize` +
+    `?provider=google` +
+    `&redirect_to=${encodeURIComponent(redirectUri)}`;
+
+  const responseUrl = await new Promise((resolve, reject) => {
+    chrome.identity.launchWebAuthFlow(
+      { url: authorizeUrl, interactive: true },
+      (url) => {
+        if (chrome.runtime.lastError || !url) {
+          reject(new Error(chrome.runtime.lastError?.message || "Login cancelado"));
+        } else {
+          resolve(url);
+        }
+      }
+    );
+  });
+
+  const hash = new URL(responseUrl).hash.replace(/^#/, "");
+  const params = new URLSearchParams(hash);
+  const access_token = params.get("access_token");
+  const refresh_token = params.get("refresh_token");
+  const expires_in = parseInt(params.get("expires_in") || "3600", 10);
+  const token_type = params.get("token_type") || "bearer";
+
+  if (!access_token || !refresh_token) {
+    const err = params.get("error_description") || params.get("error") || "Sem token retornado";
+    throw new Error(err);
+  }
+
+  const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${access_token}` },
+  });
+  const user = userRes.ok ? await userRes.json() : null;
+
+  return {
+    access_token,
+    refresh_token,
+    expires_in,
+    expires_at: Math.floor(Date.now() / 1000) + expires_in,
+    token_type,
+    user,
+  };
+};
+
 const updateAuthIndicator = async () => {
-  const { debugEmail } = await getStoredCreds();
+  const { debugEmail, debugAuthMode, debugSession } = await getStoredCreds();
+
+  if (debugAuthMode === "google") {
+    const session = await ensureValidSession();
+    if (session?.access_token) {
+      const who = session.user?.email || debugSession?.user?.email || "Google";
+      setAuthStatus(true, `Logado com Google (${who})`);
+    } else {
+      setAuthStatus(false, "Sessão Google expirada — entre novamente");
+    }
+    return;
+  }
+
   if (!debugEmail) {
-    setAuthStatus(false, "Sem credenciais — abra 🔑 abaixo");
+    setAuthStatus(false, "Sem login — clique em 🔐 abaixo");
     return;
   }
   try {
