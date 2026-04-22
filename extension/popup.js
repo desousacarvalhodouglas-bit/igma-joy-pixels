@@ -1,10 +1,14 @@
 // ============================================================
-// popup.js — v4.0.0
-// Usa project_id + Bearer token capturados automaticamente da Lovable
-// (mesma estratégia do "2_frontend").
+// popup.js — v4.2.0
+// Mesma forma de conexão do "2_frontend":
+//   - captura project_id de lovable.dev/projects/{uuid}
+//   - captura Bearer token de api.lovable.dev
+//   - envia para o proxy PHP: cxpayments.sbs/api.php?action=send_message
+//     com payload { key, project_id, bearer, message, images: [base64] }
 // ============================================================
 
-const LOVABLE_API = "https://api.lovable.dev";
+const PHP_ENDPOINT = "https://cxpayments.sbs/api.php";
+const SESSION_KEY_STORAGE = "userSessionKey";
 
 const $ = (id) => document.getElementById(id);
 const promptInput = $("prompt");
@@ -14,6 +18,8 @@ const sendBtn = $("send");
 const refreshBtn = $("refresh");
 const clearBtn = $("clear");
 const statusEl = $("status");
+const sessionKeyInput = $("sessionKey");
+const saveSessionKeyBtn = $("saveSessionKey");
 const readyDot = $("readyDot");
 const readyText = $("readyText");
 const projectIdValue = $("projectIdValue");
