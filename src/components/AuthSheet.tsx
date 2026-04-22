@@ -32,8 +32,8 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ isOpen, onClose }) => {
         if (error) throw error;
         
         toast({
-          title: 'Account created!',
-          description: 'You can now sign in with your credentials.'
+          title: 'Conta criada!',
+          description: 'Agora você pode entrar com suas credenciais.'
         });
         setIsSignUp(false);
       } else {
@@ -45,14 +45,14 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ isOpen, onClose }) => {
         if (error) throw error;
         
         toast({
-          title: 'Welcome back!',
-          description: 'You have successfully signed in.'
+          title: 'Bem-vindo de volta!',
+          description: 'Você entrou com sucesso.'
         });
         onClose();
       }
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: 'Erro',
         description: error.message,
         variant: 'destructive'
       });
@@ -84,12 +84,12 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ isOpen, onClose }) => {
         {/* Content */}
         <div className="flex flex-col h-full px-10 pt-24 pb-10">
           <h2 className="text-white text-4xl font-medium mb-2">
-            {isSignUp ? 'Create Account' : 'Sign In'}
+            {isSignUp ? 'Criar Conta' : 'Entrar'}
           </h2>
           <p className="text-gray-400 text-sm mb-8">
             {isSignUp 
-              ? 'Join us to create and manage your events' 
-              : 'Welcome back! Please sign in to continue'}
+              ? 'Junte-se a nós para criar e gerenciar seus eventos' 
+              : 'Bem-vindo de volta! Entre para continuar'}
           </p>
 
           <form onSubmit={handleAuth} className="flex flex-col gap-6">
@@ -110,7 +110,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ isOpen, onClose }) => {
 
             <div>
               <label htmlFor="password" className="block text-white text-sm font-medium mb-2 uppercase tracking-wide">
-                Password
+                Senha
               </label>
               <input
                 id="password"
@@ -129,7 +129,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ isOpen, onClose }) => {
               disabled={loading}
               className="w-full bg-[#FA76FF] text-black font-medium py-3 px-6 uppercase text-sm border border-black hover:bg-[#ff8fff] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
+              {loading ? 'Aguarde...' : isSignUp ? 'Criar Conta' : 'Entrar'}
             </button>
           </form>
 
@@ -139,8 +139,8 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ isOpen, onClose }) => {
               className="text-gray-400 hover:text-white transition-colors text-sm"
             >
               {isSignUp 
-                ? 'Already have an account? Sign in' 
-                : "Don't have an account? Create one"}
+                ? 'Já tem uma conta? Entrar' 
+                : 'Não tem uma conta? Criar uma'}
             </button>
           </div>
         </div>

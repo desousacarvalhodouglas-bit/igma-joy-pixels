@@ -15,11 +15,11 @@ import { Trash2 } from 'lucide-react';
 import { z } from 'zod';
 
 const eventSchema = z.object({
-  eventName: z.string().trim().min(1, 'Event name is required').max(200, 'Event name must be less than 200 characters'),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Start time must be in HH:MM format (e.g., 15:00)'),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'End time must be in HH:MM format (e.g., 16:00)'),
-  location: z.string().trim().min(1, 'Location is required').max(300, 'Location must be less than 300 characters'),
-  description: z.string().trim().min(1, 'Description is required').max(2000, 'Description must be less than 2000 characters'),
+  eventName: z.string().trim().min(1, 'Nome do evento é obrigatório').max(200, 'Nome deve ter menos de 200 caracteres'),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Hora de início deve estar no formato HH:MM (ex.: 15:00)'),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Hora de término deve estar no formato HH:MM (ex.: 16:00)'),
+  location: z.string().trim().min(1, 'Localização é obrigatória').max(300, 'Localização deve ter menos de 300 caracteres'),
+  description: z.string().trim().min(1, 'Descrição é obrigatória').max(2000, 'Descrição deve ter menos de 2000 caracteres'),
 });
 
 const EditEvent = () => {
@@ -98,14 +98,14 @@ const EditEvent = () => {
       if (error) throw error;
 
       if (!data) {
-        toast.error('Event not found');
+        toast.error('Evento não encontrado');
         navigate('/my-events');
         return;
       }
 
       // Check if user is the creator
       if (data.created_by !== user?.id) {
-        toast.error('You do not have permission to edit this event');
+        toast.error('Você não tem permissão para editar este evento');
         navigate('/my-events');
         return;
       }
@@ -134,7 +134,7 @@ const EditEvent = () => {
       setLoading(false);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error fetching event:', error);
-      toast.error('Failed to load event');
+      toast.error('Falha ao carregar evento');
       navigate('/my-events');
     }
   };
@@ -154,7 +154,7 @@ const EditEvent = () => {
 
       if (data) {
         const formattedRegistrants = data.map((reg: any) => ({
-          display_name: reg.profiles?.display_name || 'Anonymous',
+          display_name: reg.profiles?.display_name || 'Anônimo',
           registered_at: reg.registered_at
         }));
         setRegistrants(formattedRegistrants);
@@ -170,13 +170,13 @@ const EditEvent = () => {
       // Validate file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
-        toast.error('Please upload a JPG, PNG, GIF, or WebP image');
+        toast.error('Envie uma imagem JPG, PNG, GIF ou WebP');
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image must be less than 5MB');
+        toast.error('A imagem deve ter menos de 5MB');
         return;
       }
 
@@ -197,11 +197,11 @@ const EditEvent = () => {
 
     // Validate date fields first
     if (!startDate) {
-      toast.error('Please select a start date');
+      toast.error('Selecione uma data de início');
       return;
     }
     if (!endDate) {
-      toast.error('Please select an end date');
+      toast.error('Selecione uma data de término');
       return;
     }
 
@@ -230,7 +230,7 @@ const EditEvent = () => {
     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
 
     if (endDateTime <= startDateTime) {
-      toast.error('End date/time must be after start date/time');
+      toast.error('A data/hora de término deve ser posterior à de início');
       return;
     }
 
@@ -274,7 +274,7 @@ const EditEvent = () => {
         .eq('user_id', user.id)
         .single();
 
-      const creatorName = profile?.display_name || user.email?.split('@')[0] || 'Anonymous';
+      const creatorName = profile?.display_name || user.email?.split('@')[0] || 'Anônimo';
 
       // Update event in database
       const { error: updateError } = await supabase
@@ -293,18 +293,18 @@ const EditEvent = () => {
 
       if (updateError) throw updateError;
 
-      toast.success('Event updated successfully!');
+      toast.success('Evento atualizado com sucesso!');
       navigate('/my-events');
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error updating event:', error);
-      toast.error('Failed to update event. Please try again.');
+      toast.error('Falha ao atualizar evento. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDeleteEvent = async () => {
-    if (!window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+    if (!window.confirm('Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita.')) {
       return;
     }
 
@@ -316,11 +316,11 @@ const EditEvent = () => {
 
       if (error) throw error;
 
-      toast.success('Event deleted successfully');
+      toast.success('Evento excluído com sucesso');
       navigate('/my-events');
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error deleting event:', error);
-      toast.error('Failed to delete event');
+      toast.error('Falha ao excluir evento');
     }
   };
 
@@ -329,7 +329,7 @@ const EditEvent = () => {
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="flex h-screen items-center justify-center">
-          <div className="text-[#1A1A1A] text-2xl">Loading...</div>
+          <div className="text-[#1A1A1A] text-2xl">Carregando...</div>
         </div>
       </div>
     );
@@ -338,8 +338,8 @@ const EditEvent = () => {
   return (
     <>
       <SEOHead 
-        title="Edit Event"
-        description="Update your event details and settings"
+        title="Editar Evento"
+        description="Atualize os detalhes e configurações do seu evento"
       />
       <AuthSheet isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       
@@ -356,7 +356,7 @@ const EditEvent = () => {
                 <img src={imagePreview} alt="Event preview" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-black text-[11px] font-medium uppercase tracking-wider">
-                  ADD IMAGE
+                  ADICIONAR IMAGEM
                 </span>
               )}
               <input
@@ -373,7 +373,7 @@ const EditEvent = () => {
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-3 text-[13px] font-medium uppercase tracking-wider border border-black bg-white hover:bg-black hover:text-white transition-colors"
               >
-                Change image
+                Trocar imagem
               </button>
             )}
               </div>
@@ -382,7 +382,7 @@ const EditEvent = () => {
               <div className="space-y-4 md:space-y-6">
                 <textarea
                   ref={titleRef}
-                  placeholder="Event name"
+                  placeholder="Nome do evento"
                   className="w-full text-black text-[32px] md:text-[48px] lg:text-[56px] font-medium leading-[1.2] mb-4 md:mb-8 focus:outline-none bg-transparent border-none p-0 placeholder:text-[#C4C4C4] resize-none overflow-hidden whitespace-pre-wrap break-words"
                   value={eventName}
                   onChange={(e) => setEventName(e.target.value)}
@@ -395,7 +395,7 @@ const EditEvent = () => {
                   <div className="grid grid-cols-[80px_1fr_80px] md:grid-cols-[100px_1fr_100px] gap-0 border border-black mb-4 md:mb-6">
                     <div className="flex items-center justify-start gap-1.5 md:gap-2 border-r border-black px-2 md:px-3 py-2 md:py-3">
                       <div className="w-1.5 md:w-2 h-1.5 md:h-2 bg-black rounded-full"></div>
-                      <span className="text-[14px] md:text-[17px] font-medium">Start</span>
+                      <span className="text-[14px] md:text-[17px] font-medium">Início</span>
                     </div>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -405,7 +405,7 @@ const EditEvent = () => {
                             !startDate && "text-[#C4C4C4]"
                           )}
                         >
-                          {startDate ? format(startDate, "EEE, dd MMM") : "Thu, 28 Oct"}
+                          {startDate ? format(startDate, "EEE, dd MMM") : "Qui, 28 Out"}
                         </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -431,7 +431,7 @@ const EditEvent = () => {
                   <div className="grid grid-cols-[80px_1fr_80px] md:grid-cols-[100px_1fr_100px] gap-0 border border-black">
                 <div className="flex items-center justify-start gap-1.5 md:gap-2 border-r border-black px-2 md:px-3 py-2 md:py-3">
                   <div className="w-1.5 md:w-2 h-1.5 md:h-2 bg-black rounded-full"></div>
-                  <span className="text-[14px] md:text-[17px] font-medium">End</span>
+                  <span className="text-[14px] md:text-[17px] font-medium">Término</span>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -441,7 +441,7 @@ const EditEvent = () => {
                         !endDate && "text-[#C4C4C4]"
                       )}
                     >
-                      {endDate ? format(endDate, "EEE, dd MMM") : "Thu, 28 Oct"}
+                      {endDate ? format(endDate, "EEE, dd MMM") : "Qui, 28 Out"}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -468,7 +468,7 @@ const EditEvent = () => {
             <input
               ref={locationInputRef}
               type="text"
-              placeholder="Add event location"
+              placeholder="Adicione a localização do evento"
               className="w-full px-3 md:px-4 py-2 md:py-3 text-[14px] md:text-[17px] text-black border border-black focus:outline-none placeholder:text-[#C4C4C4]"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -476,7 +476,7 @@ const EditEvent = () => {
 
             {/* Description */}
             <textarea
-              placeholder="Add description"
+              placeholder="Adicione uma descrição"
               rows={6}
               className="w-full px-3 md:px-4 py-2 md:py-3 text-[14px] md:text-[17px] text-black border border-black focus:outline-none resize-none placeholder:text-[#C4C4C4]"
               value={description}
@@ -486,7 +486,7 @@ const EditEvent = () => {
             {/* Registrants List */}
             {registrants.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-[18px] font-medium mb-4">Registrations ({registrants.length})</h3>
+                <h3 className="text-[18px] font-medium mb-4">Inscrições ({registrants.length})</h3>
                 <div className="border border-black">
                   {registrants.map((registrant, index) => (
                     <div 
@@ -513,10 +513,10 @@ const EditEvent = () => {
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       className="flex h-[50px] justify-center items-center gap-2.5 border relative px-2.5 py-3.5 border-solid transition-all duration-300 ease-in-out w-[calc(100%-50px)] z-10 bg-[#1A1A1A] border-[#1A1A1A] group-hover:w-full group-hover:bg-[#FA76FF] group-hover:border-[#FA76FF] disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Update event"
+                      aria-label="Atualizar evento"
                     >
                       <span className="text-white text-[13px] font-normal uppercase relative transition-colors duration-300 group-hover:text-black">
-                        {isSubmitting ? 'UPDATING...' : 'UPDATE EVENT'}
+                        {isSubmitting ? 'ATUALIZANDO...' : 'ATUALIZAR EVENTO'}
                       </span>
                       <svg 
                         width="12" 
@@ -551,7 +551,7 @@ const EditEvent = () => {
                   <button
                     onClick={handleDeleteEvent}
                     className="flex w-[50px] h-[50px] justify-center items-center border border-red-500 bg-red-500 text-white transition-all duration-300 hover:bg-red-600 hover:border-red-600"
-                    aria-label="Delete event"
+                    aria-label="Excluir evento"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>

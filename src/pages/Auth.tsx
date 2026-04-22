@@ -46,8 +46,8 @@ const Auth = () => {
         if (error) throw error;
 
         toast({
-          title: 'Success',
-          description: 'Logged in successfully',
+          title: 'Sucesso',
+          description: 'Login realizado com sucesso',
         });
       } else {
         const { error } = await supabase.auth.signUp({
@@ -61,13 +61,13 @@ const Auth = () => {
         if (error) throw error;
 
         toast({
-          title: 'Success',
-          description: 'Account created successfully',
+          title: 'Sucesso',
+          description: 'Conta criada com sucesso',
         });
       }
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: 'Erro',
         description: error.message,
         variant: 'destructive',
       });
@@ -79,23 +79,23 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <SEOHead 
-        title={isLogin ? 'Sign In' : 'Sign Up'}
-        description={isLogin ? 'Sign in to manage your events and registrations' : 'Create an account to manage events and register for upcoming events'}
+        title={isLogin ? 'Entrar' : 'Cadastrar'}
+        description={isLogin ? 'Entre para gerenciar seus eventos e inscrições' : 'Crie uma conta para gerenciar eventos e se inscrever em próximos eventos'}
       />
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="text-4xl font-normal text-[#1A1A1A] tracking-[-0.02em]">
-            {isLogin ? 'Sign In' : 'Sign Up'}
+            {isLogin ? 'Entrar' : 'Cadastrar'}
           </h2>
           <p className="mt-2 text-sm text-[#1A1A1A] opacity-50">
-            {isLogin ? 'Sign in to manage events' : 'Create an account to manage events'}
+            {isLogin ? 'Entre para gerenciar eventos' : 'Crie uma conta para gerenciar eventos'}
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="E-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -105,7 +105,7 @@ const Auth = () => {
           <div>
             <Input
               type="password"
-              placeholder="Password"
+              placeholder="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -117,14 +117,14 @@ const Auth = () => {
             disabled={loading}
             className="w-full bg-[#1A1A1A] text-white hover:bg-opacity-90"
           >
-            {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
+            {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Cadastrar'}
           </Button>
         </form>
         <button
           onClick={() => setIsLogin(!isLogin)}
           className="text-sm text-[#1A1A1A] hover:opacity-70 transition-opacity"
         >
-          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+          {isLogin ? "Não tem uma conta? Cadastre-se" : 'Já tem uma conta? Entrar'}
         </button>
       </div>
     </div>

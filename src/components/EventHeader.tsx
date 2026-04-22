@@ -14,7 +14,7 @@ export const EventHeader: React.FC<EventHeaderProps> = ({ title, creator }) => {
         </h1>
       </header>
       <div className="self-stretch text-[#1A1A1A] text-[11px] font-normal uppercase relative">
-        BY {creator}
+        POR {creator}
       </div>
     </div>
   );

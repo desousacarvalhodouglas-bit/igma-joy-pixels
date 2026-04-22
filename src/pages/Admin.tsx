@@ -12,33 +12,33 @@ import { SEOHead } from '@/components/SEOHead';
 const eventSchema = z.object({
   title: z.string()
     .trim()
-    .min(1, 'Title is required')
-    .max(200, 'Title must be less than 200 characters'),
+    .min(1, 'Título é obrigatório')
+    .max(200, 'Título deve ter menos de 200 caracteres'),
   creator: z.string()
     .trim()
-    .min(1, 'Creator is required')
-    .max(100, 'Creator must be less than 100 characters'),
+    .min(1, 'Criador é obrigatório')
+    .max(100, 'Criador deve ter menos de 100 caracteres'),
   description: z.string()
     .trim()
-    .min(1, 'Description is required')
-    .max(2000, 'Description must be less than 2000 characters'),
+    .min(1, 'Descrição é obrigatória')
+    .max(2000, 'Descrição deve ter menos de 2000 caracteres'),
   date: z.string()
     .trim()
-    .min(1, 'Date is required')
-    .max(50, 'Date must be less than 50 characters'),
+    .min(1, 'Data é obrigatória')
+    .max(50, 'Data deve ter menos de 50 caracteres'),
   time: z.string()
     .trim()
-    .min(1, 'Time is required')
-    .max(50, 'Time must be less than 50 characters'),
+    .min(1, 'Horário é obrigatório')
+    .max(50, 'Horário deve ter menos de 50 caracteres'),
   address: z.string()
     .trim()
-    .min(1, 'Address is required')
-    .max(300, 'Address must be less than 300 characters'),
+    .min(1, 'Endereço é obrigatório')
+    .max(300, 'Endereço deve ter menos de 300 caracteres'),
   target_date: z.string()
     .refine((val) => {
       const date = new Date(val);
       return !isNaN(date.getTime());
-    }, 'Invalid date format'),
+    }, 'Formato de data inválido'),
 });
 
 interface Event {
@@ -83,8 +83,8 @@ const Admin = () => {
 
     if (error || !roles) {
       toast({
-        title: 'Access Denied',
-        description: 'You do not have admin privileges',
+        title: 'Acesso negado',
+        description: 'Você não tem privilégios de admin',
         variant: 'destructive',
       });
       navigate('/');
@@ -103,7 +103,7 @@ const Admin = () => {
 
     if (error) {
       toast({
-        title: 'Error',
+        title: 'Erro',
         description: error.message,
         variant: 'destructive',
       });
@@ -129,8 +129,8 @@ const Admin = () => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!validTypes.includes(file.type)) {
       toast({
-        title: 'Invalid file type',
-        description: 'Please upload a JPG, PNG, GIF, or WebP image',
+        title: 'Tipo de arquivo inválido',
+        description: 'Envie uma imagem JPG, PNG, GIF ou WebP',
         variant: 'destructive',
       });
       return;
@@ -139,8 +139,8 @@ const Admin = () => {
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: 'File too large',
-        description: 'Image must be less than 5MB',
+        title: 'Arquivo muito grande',
+        description: 'A imagem deve ter menos de 5MB',
         variant: 'destructive',
       });
       return;
@@ -150,7 +150,7 @@ const Admin = () => {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      if (!session) throw new Error('Não autenticado');
 
       const fileExt = file.name.split('.').pop();
       // Organize uploads by user_id as required by storage policies
@@ -169,12 +169,12 @@ const Admin = () => {
       setSelectedEvent({ ...selectedEvent, background_image_url: publicUrl });
       
       toast({
-        title: 'Success',
-        description: 'Image uploaded successfully',
+        title: 'Sucesso',
+        description: 'Imagem enviada com sucesso',
       });
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: 'Erro',
         description: error.message,
         variant: 'destructive',
       });
@@ -206,7 +206,7 @@ const Admin = () => {
     } catch (validationError) {
       if (validationError instanceof z.ZodError) {
         toast({
-          title: 'Validation Error',
+          title: 'Erro de validação',
           description: validationError.errors[0].message,
           variant: 'destructive',
         });
@@ -230,21 +230,21 @@ const Admin = () => {
 
     if (error) {
       toast({
-        title: 'Error',
+        title: 'Erro',
         description: error.message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Success',
-        description: 'Event updated successfully',
+        title: 'Sucesso',
+        description: 'Evento atualizado com sucesso',
       });
       fetchEvents();
     }
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
   }
 
   if (!isAdmin) {
@@ -254,16 +254,16 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-white p-8">
       <SEOHead 
-        title="Admin Dashboard"
-        description="Manage events and content for your event platform"
+        title="Painel Admin"
+        description="Gerencie eventos e conteúdo da sua plataforma"
       />
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-normal text-[#1A1A1A] tracking-[-0.02em]">
-            Event CMS
+            CMS de Eventos
           </h1>
           <Button onClick={handleSignOut} variant="outline">
-            Sign Out
+            Sair
           </Button>
         </div>
 
@@ -271,7 +271,7 @@ const Admin = () => {
           <form onSubmit={handleSave} className="space-y-6">
             <div>
               <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                Event Title
+                Título do evento
               </label>
               <Input
                 value={selectedEvent.title}
@@ -284,7 +284,7 @@ const Admin = () => {
 
             <div>
               <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                Creator
+                Criador
               </label>
               <Input
                 value={selectedEvent.creator}
@@ -297,7 +297,7 @@ const Admin = () => {
 
             <div>
               <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                Description
+                Descrição
               </label>
               <Textarea
                 value={selectedEvent.description}
@@ -311,7 +311,7 @@ const Admin = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                  Date
+                  Data
                 </label>
                 <Input
                   value={selectedEvent.date}
@@ -324,7 +324,7 @@ const Admin = () => {
 
               <div>
                 <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                  Time
+                  Horário
                 </label>
                 <Input
                   value={selectedEvent.time}
@@ -338,7 +338,7 @@ const Admin = () => {
 
             <div>
               <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                Address
+                Endereço
               </label>
               <Input
                 value={selectedEvent.address}
@@ -351,12 +351,12 @@ const Admin = () => {
 
             <div>
               <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                Background Image
+                Imagem de fundo
               </label>
               {selectedEvent.background_image_url && (
                 <img 
                   src={selectedEvent.background_image_url} 
-                  alt="Current background" 
+                  alt="Fundo atual" 
                   className="w-full h-32 object-cover mb-2 rounded"
                 />
               )}
@@ -367,12 +367,12 @@ const Admin = () => {
                 disabled={uploading}
                 className="border-[#1A1A1A]"
               />
-              {uploading && <p className="text-sm text-[#1A1A1A] mt-1">Uploading...</p>}
+              {uploading && <p className="text-sm text-[#1A1A1A] mt-1">Enviando...</p>}
             </div>
 
             <div>
               <label className="text-[#1A1A1A] text-sm font-normal uppercase mb-2 block">
-                Target Date (YYYY-MM-DD HH:MM:SS)
+                Data alvo (AAAA-MM-DD HH:MM:SS)
               </label>
               <Input
                 type="datetime-local"
@@ -385,7 +385,7 @@ const Admin = () => {
             </div>
 
             <Button type="submit" className="w-full bg-[#1A1A1A] text-white hover:bg-opacity-90">
-              Save Changes
+              Salvar alterações
             </Button>
           </form>
         )}

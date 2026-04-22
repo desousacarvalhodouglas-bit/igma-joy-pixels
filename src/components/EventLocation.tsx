@@ -16,7 +16,7 @@ export const EventLocation: React.FC<EventLocationProps> = ({
       <div className="flex flex-col items-start gap-5 self-stretch relative">
         <hr className="h-px self-stretch relative bg-[#1A1A1A] border-0" />
         <h2 className="self-stretch text-[#1A1A1A] text-[11px] font-normal uppercase relative">
-          LOCATION
+          LOCALIZAÇÃO
         </h2>
       </div>
       <div className="flex items-start gap-8 self-stretch relative max-sm:flex-col max-sm:gap-4">
@@ -30,14 +30,14 @@ export const EventLocation: React.FC<EventLocationProps> = ({
           className="text-[#1A1A1A] text-[11px] font-normal uppercase relative bg-transparent cursor-pointer hover:opacity-70 transition-opacity flex items-center gap-2 no-underline whitespace-nowrap"
         >
           <img src={arrowRight} alt="" className="w-2 h-2.5" />
-          GET DIRECTIONS
+          COMO CHEGAR
         </a>
       </div>
       <iframe
         src={`https://www.google.com/maps?q=${encodedAddress}&output=embed`}
         className="h-[214px] self-stretch relative w-full max-sm:h-[180px] border-0"
         loading="lazy"
-        title="Event location map"
+        title="Mapa do local do evento"
       />
     </section>
   );
