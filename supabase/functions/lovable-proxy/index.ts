@@ -72,12 +72,20 @@ Deno.serve(async (req) => {
 
   const bearerClean = bearer.startsWith("Bearer ") ? bearer : `Bearer ${bearer}`;
 
+  console.log("[lovable-proxy] forwarding", {
+    project_id,
+    has_message: !!message,
+    images_count: images?.length ?? 0,
+    bearer_len: bearer.length,
+  });
+
   try {
     const upstream = await fetch("https://api.lovable.dev/projects/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: bearerClean,
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
       },
       body: JSON.stringify(lovablePayload),
     });
@@ -86,12 +94,21 @@ Deno.serve(async (req) => {
     let parsed: unknown = null;
     try { parsed = JSON.parse(text); } catch { parsed = text; }
 
+    console.log("[lovable-proxy] upstream", upstream.status, typeof parsed === "string" ? parsed.slice(0, 300) : JSON.stringify(parsed).slice(0, 300));
+
     if (!upstream.ok) {
+      let hint = "";
+      if (upstream.status === 401 || upstream.status === 403) {
+        hint =
+          " — Token Bearer da Lovable inválido ou expirado. Reabra um projeto em lovable.dev e envie qualquer mensagem no chat para capturar um novo token.";
+      } else if (upstream.status === 404 || upstream.status === 405) {
+        hint = " — Endpoint da API da Lovable não encontrado / método inválido.";
+      }
       return new Response(
         JSON.stringify({
           success: false,
           status: upstream.status,
-          error: `Lovable API ${upstream.status}`,
+          error: `Lovable API ${upstream.status}${hint}`,
           details: parsed,
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -103,6 +120,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
+    console.error("[lovable-proxy] error", err);
     return new Response(
       JSON.stringify({ success: false, error: (err as Error).message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
