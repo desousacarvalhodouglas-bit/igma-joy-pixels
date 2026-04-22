@@ -12,74 +12,101 @@
     --muted: #94a3b8;
     --accent: #8b5cf6;
     --accent-2: #3b82f6;
+    --danger: #ef4444;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    width: 340px;
+    width: 420px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: var(--bg);
     color: var(--text);
-    padding: 16px;
+    padding: 14px;
   }
   h1 {
-    font-size: 16px;
+    font-size: 15px;
     margin: 0 0 4px;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  p.sub { margin: 0 0 14px; font-size: 12px; color: var(--muted); }
-  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
-  input[type="url"] {
+  p.sub { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
+  label { font-size: 11px; color: var(--muted); display: block; margin: 8px 0 4px; }
+  input[type="url"], textarea, select {
     width: 100%;
     padding: 8px 10px;
-    border-radius: 8px;
+    border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--panel);
     color: var(--text);
-    font-size: 13px;
-    margin-bottom: 12px;
+    font-size: 12px;
+    font-family: inherit;
   }
+  textarea { resize: vertical; min-height: 110px; }
   button {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
+    padding: 9px 12px;
+    border-radius: 6px;
     border: 0;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
     color: white;
-    margin-bottom: 8px;
   }
   button.secondary {
     background: var(--panel);
     color: var(--text);
     border: 1px solid var(--border);
   }
-  .row { display: flex; gap: 8px; }
-  .row button { margin-bottom: 0; }
-  .footer { font-size: 11px; color: var(--muted); margin-top: 12px; text-align: center; line-height: 1.5; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .row { display: flex; gap: 6px; margin-top: 8px; }
+  .row > * { flex: 1; }
+  .images { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .thumb { position: relative; width: 56px; height: 56px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb button {
+    position: absolute; top: 1px; right: 1px;
+    width: 16px; height: 16px; padding: 0;
+    border-radius: 50%; background: var(--danger);
+    font-size: 10px; line-height: 1;
+  }
+  .status { margin-top: 8px; padding: 6px 8px; border-radius: 4px; font-size: 11px; }
+  .status.error { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .status.success { background: rgba(34,197,94,0.15); color: #86efac; }
+  .status.info { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  details { margin-top: 8px; }
+  details summary { font-size: 11px; color: var(--muted); cursor: pointer; }
+  .footer { font-size: 10px; color: var(--muted); margin-top: 10px; text-align: center; }
 </style>
 </head>
 <body>
   <h1>🐛 Lovable Debug Tool</h1>
-  <p class="sub">Abre o popup de debug em uma janela dedicada.</p>
+  <p class="sub">Envie instrução + imagens diretamente para o Lovable.</p>
 
-  <label for="url">URL do seu app</label>
-  <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
+  <label for="prompt">Instrução para o Lovable</label>
+  <textarea id="prompt" placeholder="Descreva o que você quer que o Lovable faça..."></textarea>
 
-  <button id="open">🚀 Abrir Debug Tool</button>
+  <label>Imagens (opcional)</label>
+  <input type="file" id="files" accept="image/*" multiple style="font-size:11px;color:var(--muted);" />
+  <div class="images" id="thumbs"></div>
+
   <div class="row">
-    <button id="login" class="secondary">🔑 Login admin</button>
-    <button id="save" class="secondary">💾 Salvar URL</button>
+    <button id="send">🚀 Enviar para o Lovable</button>
   </div>
 
-  <div class="footer">
-    O Debug Tool aparece automaticamente para usuários <b>admin</b>.<br />
-    v1.1.0
-  </div>
+  <div id="status"></div>
+
+  <details>
+    <summary>⚙️ Configurações</summary>
+    <label for="url">URL do app</label>
+    <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
+    <div class="row">
+      <button id="save" class="secondary">💾 Salvar</button>
+      <button id="login" class="secondary">🔑 Login</button>
+    </div>
+  </details>
+
+  <div class="footer">v2.0.0 · standalone</div>
 
   <script src="popup.js"></script>
 </body>
