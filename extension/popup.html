@@ -13,6 +13,7 @@
     --accent: #8b5cf6;
     --accent-2: #3b82f6;
     --danger: #ef4444;
+    --success: #22c55e;
   }
   * { box-sizing: border-box; }
   body {
@@ -32,7 +33,7 @@
   }
   p.sub { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
   label { font-size: 11px; color: var(--muted); display: block; margin: 8px 0 4px; }
-  input[type="url"], textarea, select {
+  input[type="url"], input[type="email"], input[type="password"], textarea, select {
     width: 100%;
     padding: 8px 10px;
     border-radius: 6px;
@@ -77,11 +78,28 @@
   details { margin-top: 8px; }
   details summary { font-size: 11px; color: var(--muted); cursor: pointer; }
   .footer { font-size: 10px; color: var(--muted); margin-top: 10px; text-align: center; }
+  .auth-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+  .dot.ok { background: var(--success); }
 </style>
 </head>
 <body>
   <h1>🐛 Lovable Debug Tool</h1>
   <p class="sub">Envie instrução + imagens diretamente para o Lovable.</p>
+
+  <div class="auth-status" id="authStatus">
+    <span class="dot" id="authDot"></span>
+    <span id="authText">Verificando login...</span>
+  </div>
 
   <label for="prompt">Instrução para o Lovable</label>
   <textarea id="prompt" placeholder="Descreva o que você quer que o Lovable faça..."></textarea>
@@ -96,17 +114,33 @@
 
   <div id="status"></div>
 
-  <details>
-    <summary>⚙️ Configurações</summary>
-    <label for="url">URL do app</label>
-    <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
+  <details id="authDetails">
+    <summary>🔑 Credenciais admin (login automático)</summary>
+    <p style="font-size:10px;color:var(--muted);margin:6px 0;">
+      Salve seu email e senha admin. A extensão fará login automaticamente sempre que abrir o app — sem precisar autorizar manualmente.
+    </p>
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="seu@email.com" autocomplete="off" />
+    <label for="password">Senha</label>
+    <input id="password" type="password" placeholder="••••••••" autocomplete="new-password" />
     <div class="row">
-      <button id="save" class="secondary">💾 Salvar</button>
-      <button id="login" class="secondary">🔑 Login</button>
+      <button id="saveCreds" class="secondary">💾 Salvar credenciais</button>
+      <button id="testLogin" class="secondary">🧪 Testar login</button>
+    </div>
+    <div class="row">
+      <button id="clearCreds" class="secondary">🗑️ Limpar</button>
     </div>
   </details>
 
-  <div class="footer">v2.1.0 · preview bridge fix</div>
+  <details>
+    <summary>⚙️ URL do app</summary>
+    <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
+    <div class="row">
+      <button id="save" class="secondary">💾 Salvar URL</button>
+    </div>
+  </details>
+
+  <div class="footer">v3.0.0 · auto-login bridge</div>
 
   <script src="popup.js"></script>
 </body>
