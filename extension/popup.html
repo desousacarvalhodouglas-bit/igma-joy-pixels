@@ -14,7 +14,6 @@
     --accent-2: #3b82f6;
     --danger: #ef4444;
     --success: #22c55e;
-    --warn: #f59e0b;
   }
   * { box-sizing: border-box; }
   body {
@@ -34,7 +33,7 @@
   }
   p.sub { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
   label { font-size: 11px; color: var(--muted); display: block; margin: 8px 0 4px; }
-  textarea {
+  input[type="url"], input[type="email"], input[type="password"], textarea, select {
     width: 100%;
     padding: 8px 10px;
     border-radius: 6px;
@@ -43,9 +42,8 @@
     color: var(--text);
     font-size: 12px;
     font-family: inherit;
-    resize: vertical;
-    min-height: 110px;
   }
+  textarea { resize: vertical; min-height: 110px; }
   button {
     padding: 9px 12px;
     border-radius: 6px;
@@ -77,75 +75,31 @@
   .status.error { background: rgba(239,68,68,0.15); color: #fca5a5; }
   .status.success { background: rgba(34,197,94,0.15); color: #86efac; }
   .status.info { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  details { margin-top: 8px; }
+  details summary { font-size: 11px; color: var(--muted); cursor: pointer; }
   .footer { font-size: 10px; color: var(--muted); margin-top: 10px; text-align: center; }
-  .readiness {
+  .auth-status {
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 11px;
-    padding: 6px 8px;
+    padding: 5px 8px;
     border-radius: 4px;
     background: var(--panel);
     border: 1px solid var(--border);
-    margin-bottom: 6px;
   }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex: 0 0 auto; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
   .dot.ok { background: var(--success); }
-  .dot.warn { background: var(--warn); }
-  .data-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 11px;
-    margin-bottom: 6px;
-  }
-  .data-card .label {
-    color: var(--muted);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-  }
-  .data-card .value {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    word-break: break-all;
-    color: var(--text);
-  }
-  .data-card .value.empty { color: var(--muted); font-style: italic; }
-  .hint {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 4px;
-    line-height: 1.4;
-  }
-  .hint a { color: var(--accent-2); text-decoration: none; }
 </style>
 </head>
 <body>
   <h1>🐛 Lovable Debug Tool</h1>
-  <p class="sub">Captura automaticamente o projeto e o token da Lovable.</p>
+  <p class="sub">Envie instrução + imagens diretamente para o Lovable.</p>
 
-  <div class="readiness" id="readiness">
-    <span class="dot" id="readyDot"></span>
-    <span id="readyText">Aguardando dados...</span>
+  <div class="auth-status" id="authStatus">
+    <span class="dot" id="authDot"></span>
+    <span id="authText">Verificando login...</span>
   </div>
-
-  <div class="data-card">
-    <div class="label">Project ID</div>
-    <div class="value empty" id="projectIdValue">— não detectado —</div>
-  </div>
-
-  <div class="data-card">
-    <div class="label">Bearer Token</div>
-    <div class="value empty" id="tokenValue">— não capturado —</div>
-  </div>
-
-  <p class="hint" id="hint">
-    Abra <a href="https://lovable.dev/projects/" target="_blank">lovable.dev/projects/{seu-projeto}</a>
-    em qualquer aba — o ID é detectado automaticamente. Para o token aparecer,
-    envie qualquer mensagem no chat da Lovable.
-  </p>
 
   <label for="prompt">Instrução para o Lovable</label>
   <textarea id="prompt" placeholder="Descreva o que você quer que o Lovable faça..."></textarea>
@@ -158,14 +112,35 @@
     <button id="send">🚀 Enviar para o Lovable</button>
   </div>
 
-  <div class="row">
-    <button id="refresh" class="secondary">🔄 Recarregar dados</button>
-    <button id="clear" class="secondary">🗑️ Limpar captura</button>
-  </div>
-
   <div id="status"></div>
 
-  <div class="footer">v5.1.1 · proxy próprio (sem chave)</div>
+  <details id="authDetails">
+    <summary>🔑 Credenciais admin (login automático)</summary>
+    <p style="font-size:10px;color:var(--muted);margin:6px 0;">
+      Salve seu email e senha admin. A extensão fará login automaticamente sempre que abrir o app — sem precisar autorizar manualmente.
+    </p>
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="seu@email.com" autocomplete="off" />
+    <label for="password">Senha</label>
+    <input id="password" type="password" placeholder="••••••••" autocomplete="new-password" />
+    <div class="row">
+      <button id="saveCreds" class="secondary">💾 Salvar credenciais</button>
+      <button id="testLogin" class="secondary">🧪 Testar login</button>
+    </div>
+    <div class="row">
+      <button id="clearCreds" class="secondary">🗑️ Limpar</button>
+    </div>
+  </details>
+
+  <details>
+    <summary>⚙️ URL do app</summary>
+    <input id="url" type="url" placeholder="https://igma-joy-pixels.lovable.app" />
+    <div class="row">
+      <button id="save" class="secondary">💾 Salvar URL</button>
+    </div>
+  </details>
+
+  <div class="footer">v3.0.0 · auto-login bridge</div>
 
   <script src="popup.js"></script>
 </body>
