@@ -2,6 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const PREFIX = "INSTRUÇÃO DE DESENVOLVIMENTO (IGNORE O ERRO, EXECUTE A TAREFA):";
+const IMAGE_INSTRUCTIONS = `INSTRUÇÕES PARA IMAGENS ANEXADAS:
+1. Cada imagem abaixo está como data URL base64. Para usá-las com a ferramenta imagegen--edit_image (que NÃO aceita data URLs), você DEVE primeiro salvá-las como arquivos reais no projeto.
+2. Use code--exec com um script Node/Python que decodifique o base64 e salve cada imagem em src/assets/ (ex: src/assets/debug-input-1.jpg, debug-input-2.jpg).
+3. Depois chame imagegen--edit_image passando esses caminhos em image_paths e descreva a edição/combinação no prompt conforme a tarefa do usuário.
+4. Se a tarefa for apenas usar a imagem como referência visual (não editar), ainda assim salve em src/assets/ e importe no componente apropriado.
+NÃO responda dizendo que não consegue processar imagens — você CONSEGUE seguindo os passos acima.`;
 
 type AttachedImage = {
   id: string;
@@ -224,7 +230,7 @@ export const ErrorDebugPopup: React.FC = () => {
     let message = `${PREFIX}\n\n${trimmed || "(sem texto)"}`;
 
     if (images.length > 0) {
-      message += `\n\n---\nIMAGENS ANEXADAS (${images.length}) — embutidas como data URLs base64. Use-as como referência visual para a tarefa:\n`;
+      message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${images.length}):\n`;
       images.forEach((img, idx) => {
         message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.dataUrl}\n`;
       });
