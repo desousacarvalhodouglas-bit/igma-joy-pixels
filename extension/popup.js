@@ -172,7 +172,29 @@ const fileToBase64 = (file) =>
     reader.readAsDataURL(file);
   });
 
-// ---------- Send ----------
+// ---------- Session key (validada pelo proxy PHP) ----------
+
+const getSessionKey = () =>
+  new Promise((resolve) =>
+    chrome.storage.local.get([SESSION_KEY_STORAGE], (d) =>
+      resolve(d[SESSION_KEY_STORAGE] || "")
+    )
+  );
+
+const setSessionKey = (key) =>
+  chrome.storage.local.set({ [SESSION_KEY_STORAGE]: key });
+
+saveSessionKeyBtn?.addEventListener("click", async () => {
+  const key = sessionKeyInput.value.trim();
+  if (!key) {
+    setStatus("Informe a chave de sessão.", "error");
+    return;
+  }
+  await setSessionKey(key);
+  setStatus("✓ Chave salva.", "success");
+});
+
+// ---------- Send (via proxy PHP — mesma forma do 2_frontend) ----------
 
 sendBtn.addEventListener("click", async () => {
   const prompt = promptInput.value.trim();
@@ -195,49 +217,50 @@ sendBtn.addEventListener("click", async () => {
     return;
   }
 
+  const sessionKey = (sessionKeyInput.value.trim() || (await getSessionKey())).trim();
+  if (!sessionKey) {
+    setStatus(
+      "Informe a chave de sessão (campo abaixo) e clique em '💾 Salvar chave'.",
+      "error"
+    );
+    return;
+  }
+
   sendBtn.disabled = true;
-  setStatus("Enviando para a Lovable...", "info");
+  setStatus("Enviando via proxy...", "info");
 
   try {
-    // Converte imagens para base64 (Lovable aceita data URLs em chat content)
-    const imageDataUrls = [];
+    const imagesBase64 = [];
     for (const img of attached) {
       const dataUrl = await fileToBase64(img.file);
-      imageDataUrls.push(dataUrl);
+      imagesBase64.push(dataUrl);
     }
 
-    // Monta o conteúdo no formato esperado pela Lovable Chat API
-    const content = [];
-    if (prompt) content.push({ type: "text", text: prompt });
-    for (const url of imageDataUrls) {
-      content.push({ type: "image_url", image_url: { url } });
+    const res = await fetch(`${PHP_ENDPOINT}?action=send_message`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        key: sessionKey,
+        project_id: collected.projectId,
+        bearer: collected.bearerToken,
+        message: prompt,
+        images: imagesBase64,
+      }),
+    });
+
+    let result = null;
+    try { result = await res.json(); } catch (_) {}
+
+    if (res.ok && result?.success) {
+      setStatus("✓ Mensagem enviada para a Lovable!", "success");
+      promptInput.value = "";
+      attached = [];
+      renderThumbs();
+    } else {
+      const reason = result?.reason ? ` (${result.reason})` : "";
+      const msg = result?.message || result?.error || `HTTP ${res.status}`;
+      throw new Error(`${msg}${reason}`);
     }
-
-    const res = await fetch(
-      `${LOVABLE_API}/projects/${collected.projectId}/messages`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${collected.bearerToken}`,
-        },
-        body: JSON.stringify({
-          message: prompt,
-          content: content.length > 1 ? content : undefined,
-          images: imageDataUrls.length > 0 ? imageDataUrls : undefined,
-        }),
-      }
-    );
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
-    }
-
-    setStatus("✓ Mensagem enviada para a Lovable!", "success");
-    promptInput.value = "";
-    attached = [];
-    renderThumbs();
   } catch (err) {
     setStatus(`Erro: ${err.message}`, "error");
   } finally {
