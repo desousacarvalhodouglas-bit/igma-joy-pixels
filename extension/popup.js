@@ -405,7 +405,7 @@ sendBtn.addEventListener("click", async () => {
       throw new Error(`Login falhou: ${e.message}. Salve credenciais admin primeiro.`);
     }
     if (!session?.access_token) {
-      throw new Error("Sem credenciais admin salvas. Abra '🔑 Credenciais admin' e salve email/senha.");
+      throw new Error("Sem login válido. Clique em '🔐 Entrar com Google' ou salve email/senha.");
     }
 
     let urls = [];
