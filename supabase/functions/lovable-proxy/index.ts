@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
 
   try {
     const upstream = await fetch("https://api.lovable.dev/projects/messages", {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: bearerClean,
@@ -101,8 +101,10 @@ Deno.serve(async (req) => {
       if (upstream.status === 401 || upstream.status === 403) {
         hint =
           " — Token Bearer da Lovable inválido ou expirado. Reabra um projeto em lovable.dev e envie qualquer mensagem no chat para capturar um novo token.";
-      } else if (upstream.status === 404 || upstream.status === 405) {
-        hint = " — Endpoint da API da Lovable não encontrado / método inválido.";
+      } else if (upstream.status === 404) {
+        hint = " — Endpoint da API da Lovable não encontrado.";
+      } else if (upstream.status === 405) {
+        hint = " — Método inválido para a rota da API da Lovable.";
       }
       return new Response(
         JSON.stringify({
