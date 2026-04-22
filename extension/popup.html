@@ -139,12 +139,17 @@
 
   <div id="status"></div>
 
-  <details id="authDetails">
-    <summary>🔑 Credenciais admin (login automático)</summary>
+  <details id="authDetails" open>
+    <summary>🔑 Login automático</summary>
     <p style="font-size:10px;color:var(--muted);margin:6px 0;">
-      Salve seu email e senha admin. A extensão fará login automaticamente — sem precisar autorizar manualmente.
+      Conecte com Google (1 clique) ou salve email/senha admin. A sessão é reutilizada automaticamente.
     </p>
-    <label for="email">Email</label>
+
+    <div class="row" style="margin-top:6px;">
+      <button id="googleLogin" class="secondary">🔐 Entrar com Google</button>
+    </div>
+
+    <label for="email" style="margin-top:10px;">Email</label>
     <input id="email" type="email" placeholder="seu@email.com" autocomplete="off" />
     <label for="password">Senha</label>
     <input id="password" type="password" placeholder="••••••••" autocomplete="new-password" />
@@ -153,11 +158,11 @@
       <button id="testLogin" class="secondary">🧪 Testar login</button>
     </div>
     <div class="row">
-      <button id="clearCreds" class="secondary">🗑️ Limpar</button>
+      <button id="clearCreds" class="secondary">🗑️ Limpar sessão</button>
     </div>
   </details>
 
-  <div class="footer">v3.1.0 · auto-detect project</div>
+  <div class="footer">v3.2.0 · Google + email auto-login</div>
 
   <script src="popup.js"></script>
 </body>
