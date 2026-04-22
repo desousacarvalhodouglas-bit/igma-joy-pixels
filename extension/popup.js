@@ -318,11 +318,30 @@ testLoginBtn.addEventListener("click", async () => {
 });
 
 clearCredsBtn.addEventListener("click", async () => {
-  await chrome.storage.local.remove(["debugEmail", "debugPassword", "debugSession"]);
+  await chrome.storage.local.remove(["debugEmail", "debugPassword", "debugSession", "debugAuthMode"]);
   emailInput.value = "";
   passwordInput.value = "";
-  setStatus("Credenciais removidas.", "info");
+  setStatus("Sessão e credenciais removidas.", "info");
   updateAuthIndicator();
+});
+
+googleLoginBtn.addEventListener("click", async () => {
+  googleLoginBtn.disabled = true;
+  setStatus("Abrindo login Google...", "info");
+  try {
+    const session = await googleSignIn();
+    await chrome.storage.local.set({
+      debugSession: session,
+      debugAuthMode: "google",
+      debugEmail: session.user?.email || null,
+    });
+    setStatus(`✓ Conectado como ${session.user?.email || "Google user"}`, "success");
+    updateAuthIndicator();
+  } catch (e) {
+    setStatus(`Falha Google: ${e.message}`, "error");
+  } finally {
+    googleLoginBtn.disabled = false;
+  }
 });
 
 // --- Image upload ---
