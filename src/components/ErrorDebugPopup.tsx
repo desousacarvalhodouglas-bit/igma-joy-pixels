@@ -16,16 +16,72 @@ type AttachedImage = {
   dataUrl: string; // base64 data URL
 };
 
-const MAX_IMAGE_BYTES = 3_000_000; // ~3MB por imagem
-const MAX_TOTAL_BYTES = 10_000_000; // ~10MB total
+const MAX_IMAGE_BYTES = 20_000_000; // 20MB por imagem (será comprimida se > TARGET)
+const MAX_TOTAL_BYTES = 60_000_000; // 60MB total bruto antes de compressão
+const TARGET_IMAGE_BYTES = 2_500_000; // alvo após compressão: ~2.5MB
+const MAX_DIMENSION = 2048; // redimensiona lado maior para no máx 2048px
 
-const fileToDataUrl = (file: File): Promise<string> =>
+const fileToDataUrl = (file: Blob): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+
+const loadImage = (dataUrl: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+
+/**
+ * Comprime uma imagem para ficar abaixo de TARGET_IMAGE_BYTES.
+ * Redimensiona o lado maior até MAX_DIMENSION e re-codifica como JPEG
+ * com qualidade decrescente até atingir o tamanho alvo.
+ */
+const compressImage = async (file: File): Promise<{ blob: Blob; dataUrl: string }> => {
+  // Se já é pequena o suficiente e não é HEIC, mantém como está
+  if (file.size <= TARGET_IMAGE_BYTES && file.type.startsWith("image/") && !/heic|heif/i.test(file.type)) {
+    const dataUrl = await fileToDataUrl(file);
+    return { blob: file, dataUrl };
+  }
+
+  const originalDataUrl = await fileToDataUrl(file);
+  const img = await loadImage(originalDataUrl);
+
+  const ratio = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
+  const w = Math.round(img.width * ratio);
+  const h = Math.round(img.height * ratio);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas context indisponível");
+  ctx.drawImage(img, 0, 0, w, h);
+
+  // Tenta qualidades decrescentes até caber em TARGET_IMAGE_BYTES
+  const qualities = [0.85, 0.75, 0.65, 0.55, 0.45, 0.35];
+  for (const q of qualities) {
+    const blob: Blob | null = await new Promise((res) =>
+      canvas.toBlob((b) => res(b), "image/jpeg", q)
+    );
+    if (blob && blob.size <= TARGET_IMAGE_BYTES) {
+      const dataUrl = await fileToDataUrl(blob);
+      return { blob, dataUrl };
+    }
+    if (blob && q === qualities[qualities.length - 1]) {
+      const dataUrl = await fileToDataUrl(blob);
+      return { blob, dataUrl };
+    }
+  }
+  // Fallback (não deve ocorrer)
+  const dataUrl = await fileToDataUrl(file);
+  return { blob: file, dataUrl };
+};
 
 /**
  * ErrorDebugPopup
