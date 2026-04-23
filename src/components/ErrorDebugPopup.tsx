@@ -210,7 +210,7 @@ export const ErrorDebugPopup: React.FC = () => {
 
       for (const file of files) {
         if (file.size > MAX_IMAGE_BYTES) {
-          setAttachError(`"${file.name}" excede ${Math.round(MAX_IMAGE_BYTES / 1024)}KB e foi ignorado.`);
+          setAttachError(`"${file.name}" excede ${Math.round(MAX_IMAGE_BYTES / 1024 / 1024)}MB e foi ignorado.`);
           continue;
         }
         if (currentTotal + file.size > MAX_TOTAL_BYTES) {
@@ -218,15 +218,16 @@ export const ErrorDebugPopup: React.FC = () => {
           break;
         }
         try {
-          const dataUrl = await fileToDataUrl(file);
+          // Comprime automaticamente se necessário (preserva qualidade visual)
+          const { blob, dataUrl } = await compressImage(file);
           newImages.push({
             id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             name: file.name,
-            type: file.type,
-            size: file.size,
+            type: blob.type || file.type,
+            size: blob.size,
             dataUrl,
           });
-          currentTotal += file.size;
+          currentTotal += blob.size;
         } catch {
           setAttachError(`Falha ao ler "${file.name}".`);
         }
