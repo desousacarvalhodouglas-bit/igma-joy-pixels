@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
 import Auth from "./pages/Auth";
@@ -13,25 +13,12 @@ import NotFound from "./pages/NotFound";
 import { DebugErrorThrower } from "./components/DebugErrorThrower";
 import { ErrorDebugPopup } from "./components/ErrorDebugPopup";
 
-const DebugTools = () => {
-  const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin");
-
-  if (!isAdminRoute) {
-    return null;
-  }
-
-  return (
-    <>
-      <DebugErrorThrower />
-      <ErrorDebugPopup />
-    </>
-  );
-};
-
 const App = () => (
   <TooltipProvider>
-    <DebugTools />
+    {/* DebugErrorThrower DEVE ficar fora de qualquer ErrorBoundary/Suspense
+        para que o erro intencional escape até o overlay global da Lovable. */}
+    <DebugErrorThrower />
+    <ErrorDebugPopup />
     <Toaster />
     <Sonner />
     <Routes>
