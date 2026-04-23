@@ -67,6 +67,13 @@ export const Navbar: React.FC = () => {
           <span className="relative z-10">CRIAR EVENTO</span>
           <span className="absolute inset-0 bg-[#FA76FF] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
         </button>
+        <Link
+          to="/image-gen"
+          className="relative overflow-hidden bg-white text-black h-[34px] px-3 flex items-center text-[11px] font-medium uppercase border-l-0 border border-black leading-none group"
+        >
+          <span className="relative z-10">GERAR IMAGEM</span>
+          <span className="absolute inset-0 bg-[#FA76FF] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+        </Link>
         {user ? (
           <>
             <Link 
@@ -135,6 +142,14 @@ export const Navbar: React.FC = () => {
             >
               CRIAR EVENTO
             </button>
+            <Link
+              to="/image-gen"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex-1 flex items-center justify-center text-[#1A1A1A] text-[17px] font-medium uppercase border-b border-black tracking-[-0.34px] animate-fade-in"
+              style={{ animationDelay: '0.25s', animationFillMode: 'both' }}
+            >
+              GERAR IMAGEM
+            </Link>
             {user ? (
               <>
                 <Link 
