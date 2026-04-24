@@ -9,11 +9,16 @@ import Admin from "./pages/Admin";
 import MyEvents from "./pages/MyEvents";
 import CreateEvent from "./pages/CreateEvent";
 import EditEvent from "./pages/EditEvent";
-import ImageGen from "./pages/ImageGen";
 import NotFound from "./pages/NotFound";
+import { DebugErrorThrower } from "./components/DebugErrorThrower";
+import { ErrorDebugPopup } from "./components/ErrorDebugPopup";
 
 const App = () => (
   <TooltipProvider>
+    {/* DebugErrorThrower DEVE ficar fora de qualquer ErrorBoundary/Suspense
+        para que o erro intencional escape até o overlay global da Lovable. */}
+    <DebugErrorThrower />
+    <ErrorDebugPopup />
     <Toaster />
     <Sonner />
     <Routes>
@@ -24,7 +29,6 @@ const App = () => (
       <Route path="/create-event" element={<CreateEvent />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/admin" element={<Admin />} />
-      <Route path="/image-gen" element={<ImageGen />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
