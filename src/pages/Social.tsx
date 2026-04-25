@@ -211,9 +211,10 @@ const Social = () => {
         </header>
 
         <Tabs defaultValue="compose" className="space-y-6">
-          <TabsList className="grid grid-cols-3 w-full max-w-md">
+          <TabsList className="grid grid-cols-4 w-full max-w-xl">
             <TabsTrigger value="compose">Criar</TabsTrigger>
             <TabsTrigger value="posts">Posts ({posts.length})</TabsTrigger>
+            <TabsTrigger value="media">Mídia ({posts.filter(p => p.media_url).length})</TabsTrigger>
             <TabsTrigger value="accounts">Contas</TabsTrigger>
           </TabsList>
 
