@@ -106,6 +106,81 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_posts: {
+        Row: {
+          caption: string
+          created_at: string
+          error_message: string | null
+          hashtags: string | null
+          id: string
+          media_url: string | null
+          platforms: Database["public"]["Enums"]["social_platform"][]
+          published_at: string | null
+          scheduled_for: string | null
+          status: Database["public"]["Enums"]["post_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          error_message?: string | null
+          hashtags?: string | null
+          id?: string
+          media_url?: string | null
+          platforms?: Database["public"]["Enums"]["social_platform"][]
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["post_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          error_message?: string | null
+          hashtags?: string | null
+          id?: string
+          media_url?: string | null
+          platforms?: Database["public"]["Enums"]["social_platform"][]
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["post_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_accounts: {
+        Row: {
+          account_handle: string
+          account_name: string
+          created_at: string
+          id: string
+          is_connected: boolean
+          platform: Database["public"]["Enums"]["social_platform"]
+          user_id: string
+        }
+        Insert: {
+          account_handle: string
+          account_name: string
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          platform: Database["public"]["Enums"]["social_platform"]
+          user_id: string
+        }
+        Update: {
+          account_handle?: string
+          account_name?: string
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          platform?: Database["public"]["Enums"]["social_platform"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -142,6 +217,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      post_status: "draft" | "scheduled" | "publishing" | "published" | "failed"
+      social_platform: "instagram" | "facebook"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -270,6 +347,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      post_status: ["draft", "scheduled", "publishing", "published", "failed"],
+      social_platform: ["instagram", "facebook"],
     },
   },
 } as const
