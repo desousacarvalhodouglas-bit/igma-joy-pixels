@@ -211,9 +211,10 @@ const Social = () => {
         </header>
 
         <Tabs defaultValue="compose" className="space-y-6">
-          <TabsList className="grid grid-cols-3 w-full max-w-md">
+          <TabsList className="grid grid-cols-4 w-full max-w-xl">
             <TabsTrigger value="compose">Criar</TabsTrigger>
             <TabsTrigger value="posts">Posts ({posts.length})</TabsTrigger>
+            <TabsTrigger value="media">Mídia ({posts.filter(p => p.media_url).length})</TabsTrigger>
             <TabsTrigger value="accounts">Contas</TabsTrigger>
           </TabsList>
 
@@ -389,6 +390,75 @@ const Social = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* MEDIA GALLERY */}
+          <TabsContent value="media">
+            {(() => {
+              const mediaPosts = posts.filter((p) => p.media_url);
+              if (loading) return <p className="text-muted-foreground">Carregando...</p>;
+              if (mediaPosts.length === 0) {
+                return (
+                  <Card className="p-12 text-center text-muted-foreground">
+                    Nenhuma imagem criada ainda. Gere uma na aba "Criar" e salve como rascunho.
+                  </Card>
+                );
+              }
+              return (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Imagens armazenadas no banco em <code className="text-xs bg-muted px-1.5 py-0.5 rounded">scheduled_posts.media_url</code>.
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {mediaPosts.map((post) => (
+                      <Card key={post.id} className="overflow-hidden group">
+                        <div className="aspect-square bg-muted relative">
+                          <img
+                            src={post.media_url!}
+                            alt={post.caption.slice(0, 40)}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                setMediaUrl(post.media_url!);
+                                toast({ title: "Imagem reutilizada no compositor" });
+                              }}
+                            >
+                              Reutilizar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                navigator.clipboard.writeText(post.media_url!);
+                                toast({ title: "URL copiada" });
+                              }}
+                            >
+                              Copiar URL
+                            </Button>
+                            <a
+                              href={post.media_url!}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-primary underline"
+                            >
+                              Abrir em nova aba
+                            </a>
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <Badge className={statusColors[post.status]} >{post.status}</Badge>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-2">{post.caption}</p>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </TabsContent>
 
           {/* ACCOUNTS */}
