@@ -12,13 +12,15 @@ import EditEvent from "./pages/EditEvent";
 import Social from "./pages/Social";
 import NotFound from "./pages/NotFound";
 import { DebugErrorThrower } from "./components/DebugErrorThrower";
+import { DebugErrorBoundary } from "./components/DebugErrorBoundary";
 import { ErrorDebugPopup } from "./components/ErrorDebugPopup";
 
 const App = () => (
   <TooltipProvider>
-    {/* DebugErrorThrower DEVE ficar fora de qualquer ErrorBoundary/Suspense
-        para que o erro intencional escape até o overlay global da Lovable. */}
-    <DebugErrorThrower />
+    {/* DebugErrorThrower isolado em boundary para não quebrar a árvore inteira */}
+    <DebugErrorBoundary>
+      <DebugErrorThrower />
+    </DebugErrorBoundary>
     <ErrorDebugPopup />
     <Toaster />
     <Sonner />
