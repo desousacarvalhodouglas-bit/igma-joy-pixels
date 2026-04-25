@@ -73,12 +73,15 @@ const Admin = () => {
       return;
     }
 
-    const { data: hasAdminRole, error } = await supabase.rpc('has_role', {
-      _user_id: session.user.id,
-      _role: 'admin',
-    });
+    // Check if user has admin role
+    const { data: roles, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', session.user.id)
+      .eq('role', 'admin')
+      .single();
 
-    if (error || !hasAdminRole) {
+    if (error || !roles) {
       toast({
         title: 'Acesso negado',
         description: 'Você não tem privilégios de admin',
