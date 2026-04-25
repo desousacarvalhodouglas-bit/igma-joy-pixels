@@ -9,6 +9,7 @@ import Admin from "./pages/Admin";
 import MyEvents from "./pages/MyEvents";
 import CreateEvent from "./pages/CreateEvent";
 import EditEvent from "./pages/EditEvent";
+import Social from "./pages/Social";
 import NotFound from "./pages/NotFound";
 import { DebugErrorThrower } from "./components/DebugErrorThrower";
 import { ErrorDebugPopup } from "./components/ErrorDebugPopup";
@@ -27,6 +28,7 @@ const App = () => (
       <Route path="/event/:id/edit" element={<EditEvent />} />
       <Route path="/my-events" element={<MyEvents />} />
       <Route path="/create-event" element={<CreateEvent />} />
+      <Route path="/social" element={<Social />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/admin" element={<Admin />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
