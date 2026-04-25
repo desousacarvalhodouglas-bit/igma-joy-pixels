@@ -76,6 +76,13 @@ export const Navbar: React.FC = () => {
               <span className="relative z-10">MEUS EVENTOS</span>
               <span className="absolute inset-0 bg-[#FA76FF] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
             </Link>
+            <Link 
+              to="/social" 
+              className="relative overflow-hidden bg-white text-black h-[34px] px-3 flex items-center text-[11px] font-medium uppercase border-l-0 border border-black leading-none group"
+            >
+              <span className="relative z-10">SOCIAL</span>
+              <span className="absolute inset-0 bg-[#FA76FF] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+            </Link>
             <button 
               onClick={async () => {
                 await supabase.auth.signOut();
@@ -144,6 +151,14 @@ export const Navbar: React.FC = () => {
                   style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
                 >
                   MEUS EVENTOS
+                </Link>
+                <Link 
+                  to="/social" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex-1 flex items-center justify-center text-[#1A1A1A] text-[17px] font-medium uppercase border-b border-black tracking-[-0.34px] animate-fade-in"
+                  style={{ animationDelay: '0.35s', animationFillMode: 'both' }}
+                >
+                  SOCIAL
                 </Link>
                 <button 
                   onClick={async () => {
