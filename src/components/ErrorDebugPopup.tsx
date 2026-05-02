@@ -111,9 +111,11 @@ export const ErrorDebugPopup: React.FC = () => {
   const [hasSession, setHasSession] = useState(false);
   const [text, setText] = useState("");
   const [images, setImages] = useState<AttachedImage[]>([]);
+  const [files, setFiles] = useState<AttachedFile[]>([]);
   const [attachError, setAttachError] = useState<string | null>(null);
   const [minimized, setMinimized] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const docInputRef = useRef<HTMLInputElement | null>(null);
 
   // Drag state
   const [pos, setPos] = useState<{ x: number; y: number }>(() => ({
