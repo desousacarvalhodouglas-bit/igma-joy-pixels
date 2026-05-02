@@ -348,13 +348,14 @@ export const ErrorDebugPopup: React.FC = () => {
 
   const fireError = useCallback(async () => {
     const trimmed = text.trim();
-    if (!trimmed && images.length === 0) return;
+    if (!trimmed && images.length === 0 && files.length === 0) return;
 
     let message = `${PREFIX}\n\n${trimmed || "(sem texto)"}`;
 
-    if (images.length > 0) {
+    if (images.length > 0 || files.length > 0) {
       setUploading(true);
-      const uploadedUrls: { name: string; url: string; type: string }[] = [];
+      const uploadedImages: { name: string; url: string; type: string }[] = [];
+      const uploadedFiles: { name: string; url: string; type: string; size: number }[] = [];
       try {
         for (const img of images) {
           const blob = dataUrlToBlob(img.dataUrl);
@@ -369,7 +370,21 @@ export const ErrorDebugPopup: React.FC = () => {
             return;
           }
           const { data: pub } = supabase.storage.from("debug-uploads").getPublicUrl(path);
-          uploadedUrls.push({ name: img.name, url: pub.publicUrl, type: img.type });
+          uploadedImages.push({ name: img.name, url: pub.publicUrl, type: img.type });
+        }
+        for (const f of files) {
+          const ext = f.name.split(".").pop() || "bin";
+          const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("debug-uploads")
+            .upload(path, f.blob, { contentType: f.type, upsert: false });
+          if (upErr) {
+            setAttachError(`Falha no upload de "${f.name}": ${upErr.message}`);
+            setUploading(false);
+            return;
+          }
+          const { data: pub } = supabase.storage.from("debug-uploads").getPublicUrl(path);
+          uploadedFiles.push({ name: f.name, url: pub.publicUrl, type: f.type, size: f.size });
         }
       } catch (e) {
         setAttachError(`Erro inesperado no upload: ${(e as Error).message}`);
@@ -378,14 +393,22 @@ export const ErrorDebugPopup: React.FC = () => {
       }
       setUploading(false);
 
-      message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${uploadedUrls.length}):\n`;
-      uploadedUrls.forEach((img, idx) => {
-        message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.url}\n`;
-      });
+      if (uploadedImages.length > 0) {
+        message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${uploadedImages.length}):\n`;
+        uploadedImages.forEach((img, idx) => {
+          message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.url}\n`;
+        });
+      }
+      if (uploadedFiles.length > 0) {
+        message += `\n\n---\n${FILE_INSTRUCTIONS}\n\nARQUIVOS ANEXADOS (${uploadedFiles.length}):\n`;
+        uploadedFiles.forEach((f, idx) => {
+          message += `\n[Arquivo ${idx + 1}: ${f.name} (${f.type}, ${Math.round(f.size / 1024)}KB)]\n${f.url}\n`;
+        });
+      }
     }
 
     window.dispatchEvent(new CustomEvent("lovable-debug-error", { detail: message }));
-  }, [text, images]);
+  }, [text, images, files]);
 
   const onTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
