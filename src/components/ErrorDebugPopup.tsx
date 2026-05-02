@@ -541,6 +541,25 @@ export const ErrorDebugPopup: React.FC = () => {
               </div>
             )}
 
+            {files.length > 0 && (
+              <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto border border-border rounded p-1.5 bg-muted/30">
+                {files.map((f) => (
+                  <div key={f.id} className="flex items-center gap-1 bg-background border border-border rounded px-1.5 py-0.5 text-[10px] text-foreground">
+                    <span className="max-w-[140px] truncate" title={f.name}>📎 {f.name}</span>
+                    <span className="text-muted-foreground">{Math.round(f.size / 1024)}KB</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(f.id)}
+                      className="text-destructive hover:opacity-80"
+                      aria-label={`Remover ${f.name}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {attachError && (
               <p className="text-[10px] text-destructive">{attachError}</p>
             )}
@@ -556,12 +575,26 @@ export const ErrorDebugPopup: React.FC = () => {
                 onChange={onFileInputChange}
                 className="hidden"
               />
+              <input
+                ref={docInputRef}
+                type="file"
+                multiple
+                onChange={onDocInputChange}
+                className="hidden"
+              />
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="text-xs px-2 py-1.5 rounded border border-input hover:bg-accent text-foreground"
               >
                 + Imagem
+              </button>
+              <button
+                type="button"
+                onClick={() => docInputRef.current?.click()}
+                className="text-xs px-2 py-1.5 rounded border border-input hover:bg-accent text-foreground"
+              >
+                + Arquivo
               </button>
               {images.length > 0 && (
                 <span className="text-[10px] text-muted-foreground">
