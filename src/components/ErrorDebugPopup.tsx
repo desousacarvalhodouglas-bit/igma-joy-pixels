@@ -7,6 +7,11 @@ const IMAGE_INSTRUCTIONS = `INSTRUÇÕES PARA IMAGENS ANEXADAS:
 - Use a ferramenta imagegen--edit_image passando essas URLs em image_paths para editar/combinar conforme a tarefa do usuário.
 - Se a tarefa for usar como referência visual, baixe-as com curl/fetch para src/assets/ e importe no componente.
 NÃO responda dizendo que não consegue processar imagens — você CONSEGUE usando as URLs abaixo.`;
+const FILE_INSTRUCTIONS = `INSTRUÇÕES PARA ARQUIVOS ANEXADOS:
+- Os arquivos estão hospedados em URLs públicas (Lovable Cloud Storage).
+- Baixe-os com curl/fetch quando necessário para inspecionar/processar (ex: PDFs, DOCX, CSV, JSON, ZIP, código).
+- Use document--parse_document para PDF/DOCX/PPTX/XLSX quando precisar do conteúdo estruturado.
+- Para texto puro (txt, md, json, csv, código), basta baixar e ler diretamente.`;
 
 type AttachedImage = {
   id: string;
@@ -14,6 +19,14 @@ type AttachedImage = {
   type: string;
   size: number;
   dataUrl: string; // base64 data URL
+};
+
+type AttachedFile = {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  blob: Blob;
 };
 
 const MAX_IMAGE_BYTES = 20_000_000; // 20MB por imagem (será comprimida se > TARGET)
@@ -98,9 +111,11 @@ export const ErrorDebugPopup: React.FC = () => {
   const [hasSession, setHasSession] = useState(false);
   const [text, setText] = useState("");
   const [images, setImages] = useState<AttachedImage[]>([]);
+  const [files, setFiles] = useState<AttachedFile[]>([]);
   const [attachError, setAttachError] = useState<string | null>(null);
   const [minimized, setMinimized] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const docInputRef = useRef<HTMLInputElement | null>(null);
 
   // Drag state
   const [pos, setPos] = useState<{ x: number; y: number }>(() => ({
@@ -264,10 +279,47 @@ export const ErrorDebugPopup: React.FC = () => {
     }
   };
 
+  const addGenericFiles = useCallback((fileList: FileList | File[]) => {
+    setAttachError(null);
+    const arr = Array.from(fileList);
+    const accepted: AttachedFile[] = [];
+    let currentTotal = files.reduce((a, f) => a + f.size, 0);
+    for (const file of arr) {
+      if (file.size > MAX_IMAGE_BYTES) {
+        setAttachError(`"${file.name}" excede ${Math.round(MAX_IMAGE_BYTES / 1024 / 1024)}MB e foi ignorado.`);
+        continue;
+      }
+      if (currentTotal + file.size > MAX_TOTAL_BYTES) {
+        setAttachError(`Total de arquivos excede limite. Alguns foram ignorados.`);
+        break;
+      }
+      accepted.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: file.name,
+        type: file.type || "application/octet-stream",
+        size: file.size,
+        blob: file,
+      });
+      currentTotal += file.size;
+    }
+    if (accepted.length > 0) setFiles((prev) => [...prev, ...accepted]);
+  }, [files]);
+
+  const onDocInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      addGenericFiles(e.target.files);
+      e.target.value = "";
+    }
+  };
+
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      addFiles(e.dataTransfer.files);
+      const all = Array.from(e.dataTransfer.files);
+      const imgs = all.filter((f) => f.type.startsWith("image/"));
+      const docs = all.filter((f) => !f.type.startsWith("image/"));
+      if (imgs.length) addFiles(imgs);
+      if (docs.length) addGenericFiles(docs);
     }
   };
 
@@ -277,6 +329,10 @@ export const ErrorDebugPopup: React.FC = () => {
 
   const removeImage = (id: string) => {
     setImages((prev) => prev.filter((img) => img.id !== id));
+  };
+
+  const removeFile = (id: string) => {
+    setFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
   const [uploading, setUploading] = useState(false);
@@ -292,13 +348,14 @@ export const ErrorDebugPopup: React.FC = () => {
 
   const fireError = useCallback(async () => {
     const trimmed = text.trim();
-    if (!trimmed && images.length === 0) return;
+    if (!trimmed && images.length === 0 && files.length === 0) return;
 
     let message = `${PREFIX}\n\n${trimmed || "(sem texto)"}`;
 
-    if (images.length > 0) {
+    if (images.length > 0 || files.length > 0) {
       setUploading(true);
-      const uploadedUrls: { name: string; url: string; type: string }[] = [];
+      const uploadedImages: { name: string; url: string; type: string }[] = [];
+      const uploadedFiles: { name: string; url: string; type: string; size: number }[] = [];
       try {
         for (const img of images) {
           const blob = dataUrlToBlob(img.dataUrl);
@@ -313,7 +370,21 @@ export const ErrorDebugPopup: React.FC = () => {
             return;
           }
           const { data: pub } = supabase.storage.from("debug-uploads").getPublicUrl(path);
-          uploadedUrls.push({ name: img.name, url: pub.publicUrl, type: img.type });
+          uploadedImages.push({ name: img.name, url: pub.publicUrl, type: img.type });
+        }
+        for (const f of files) {
+          const ext = f.name.split(".").pop() || "bin";
+          const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("debug-uploads")
+            .upload(path, f.blob, { contentType: f.type, upsert: false });
+          if (upErr) {
+            setAttachError(`Falha no upload de "${f.name}": ${upErr.message}`);
+            setUploading(false);
+            return;
+          }
+          const { data: pub } = supabase.storage.from("debug-uploads").getPublicUrl(path);
+          uploadedFiles.push({ name: f.name, url: pub.publicUrl, type: f.type, size: f.size });
         }
       } catch (e) {
         setAttachError(`Erro inesperado no upload: ${(e as Error).message}`);
@@ -322,14 +393,22 @@ export const ErrorDebugPopup: React.FC = () => {
       }
       setUploading(false);
 
-      message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${uploadedUrls.length}):\n`;
-      uploadedUrls.forEach((img, idx) => {
-        message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.url}\n`;
-      });
+      if (uploadedImages.length > 0) {
+        message += `\n\n---\n${IMAGE_INSTRUCTIONS}\n\nIMAGENS ANEXADAS (${uploadedImages.length}):\n`;
+        uploadedImages.forEach((img, idx) => {
+          message += `\n[Imagem ${idx + 1}: ${img.name} (${img.type})]\n${img.url}\n`;
+        });
+      }
+      if (uploadedFiles.length > 0) {
+        message += `\n\n---\n${FILE_INSTRUCTIONS}\n\nARQUIVOS ANEXADOS (${uploadedFiles.length}):\n`;
+        uploadedFiles.forEach((f, idx) => {
+          message += `\n[Arquivo ${idx + 1}: ${f.name} (${f.type}, ${Math.round(f.size / 1024)}KB)]\n${f.url}\n`;
+        });
+      }
     }
 
     window.dispatchEvent(new CustomEvent("lovable-debug-error", { detail: message }));
-  }, [text, images]);
+  }, [text, images, files]);
 
   const onTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
@@ -462,6 +541,25 @@ export const ErrorDebugPopup: React.FC = () => {
               </div>
             )}
 
+            {files.length > 0 && (
+              <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto border border-border rounded p-1.5 bg-muted/30">
+                {files.map((f) => (
+                  <div key={f.id} className="flex items-center gap-1 bg-background border border-border rounded px-1.5 py-0.5 text-[10px] text-foreground">
+                    <span className="max-w-[140px] truncate" title={f.name}>📎 {f.name}</span>
+                    <span className="text-muted-foreground">{Math.round(f.size / 1024)}KB</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(f.id)}
+                      className="text-destructive hover:opacity-80"
+                      aria-label={`Remover ${f.name}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {attachError && (
               <p className="text-[10px] text-destructive">{attachError}</p>
             )}
@@ -477,12 +575,26 @@ export const ErrorDebugPopup: React.FC = () => {
                 onChange={onFileInputChange}
                 className="hidden"
               />
+              <input
+                ref={docInputRef}
+                type="file"
+                multiple
+                onChange={onDocInputChange}
+                className="hidden"
+              />
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="text-xs px-2 py-1.5 rounded border border-input hover:bg-accent text-foreground"
               >
                 + Imagem
+              </button>
+              <button
+                type="button"
+                onClick={() => docInputRef.current?.click()}
+                className="text-xs px-2 py-1.5 rounded border border-input hover:bg-accent text-foreground"
+              >
+                + Arquivo
               </button>
               {images.length > 0 && (
                 <span className="text-[10px] text-muted-foreground">
