@@ -279,10 +279,47 @@ export const ErrorDebugPopup: React.FC = () => {
     }
   };
 
+  const addGenericFiles = useCallback((fileList: FileList | File[]) => {
+    setAttachError(null);
+    const arr = Array.from(fileList);
+    const accepted: AttachedFile[] = [];
+    let currentTotal = files.reduce((a, f) => a + f.size, 0);
+    for (const file of arr) {
+      if (file.size > MAX_IMAGE_BYTES) {
+        setAttachError(`"${file.name}" excede ${Math.round(MAX_IMAGE_BYTES / 1024 / 1024)}MB e foi ignorado.`);
+        continue;
+      }
+      if (currentTotal + file.size > MAX_TOTAL_BYTES) {
+        setAttachError(`Total de arquivos excede limite. Alguns foram ignorados.`);
+        break;
+      }
+      accepted.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: file.name,
+        type: file.type || "application/octet-stream",
+        size: file.size,
+        blob: file,
+      });
+      currentTotal += file.size;
+    }
+    if (accepted.length > 0) setFiles((prev) => [...prev, ...accepted]);
+  }, [files]);
+
+  const onDocInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      addGenericFiles(e.target.files);
+      e.target.value = "";
+    }
+  };
+
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      addFiles(e.dataTransfer.files);
+      const all = Array.from(e.dataTransfer.files);
+      const imgs = all.filter((f) => f.type.startsWith("image/"));
+      const docs = all.filter((f) => !f.type.startsWith("image/"));
+      if (imgs.length) addFiles(imgs);
+      if (docs.length) addGenericFiles(docs);
     }
   };
 
@@ -292,6 +329,10 @@ export const ErrorDebugPopup: React.FC = () => {
 
   const removeImage = (id: string) => {
     setImages((prev) => prev.filter((img) => img.id !== id));
+  };
+
+  const removeFile = (id: string) => {
+    setFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
   const [uploading, setUploading] = useState(false);
