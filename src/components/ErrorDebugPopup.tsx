@@ -7,6 +7,11 @@ const IMAGE_INSTRUCTIONS = `INSTRUÇÕES PARA IMAGENS ANEXADAS:
 - Use a ferramenta imagegen--edit_image passando essas URLs em image_paths para editar/combinar conforme a tarefa do usuário.
 - Se a tarefa for usar como referência visual, baixe-as com curl/fetch para src/assets/ e importe no componente.
 NÃO responda dizendo que não consegue processar imagens — você CONSEGUE usando as URLs abaixo.`;
+const FILE_INSTRUCTIONS = `INSTRUÇÕES PARA ARQUIVOS ANEXADOS:
+- Os arquivos estão hospedados em URLs públicas (Lovable Cloud Storage).
+- Baixe-os com curl/fetch quando necessário para inspecionar/processar (ex: PDFs, DOCX, CSV, JSON, ZIP, código).
+- Use document--parse_document para PDF/DOCX/PPTX/XLSX quando precisar do conteúdo estruturado.
+- Para texto puro (txt, md, json, csv, código), basta baixar e ler diretamente.`;
 
 type AttachedImage = {
   id: string;
@@ -14,6 +19,14 @@ type AttachedImage = {
   type: string;
   size: number;
   dataUrl: string; // base64 data URL
+};
+
+type AttachedFile = {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  blob: Blob;
 };
 
 const MAX_IMAGE_BYTES = 20_000_000; // 20MB por imagem (será comprimida se > TARGET)
