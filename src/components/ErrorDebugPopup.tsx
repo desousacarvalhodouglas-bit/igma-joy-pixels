@@ -336,6 +336,7 @@ export const ErrorDebugPopup: React.FC = () => {
   };
 
   const [uploading, setUploading] = useState(false);
+  const [justSent, setJustSent] = useState(false);
 
   const dataUrlToBlob = (dataUrl: string): Blob => {
     const [header, base64] = dataUrl.split(",");
