@@ -113,7 +113,7 @@ export const ErrorDebugPopup: React.FC = () => {
   const [images, setImages] = useState<AttachedImage[]>([]);
   const [files, setFiles] = useState<AttachedFile[]>([]);
   const [attachError, setAttachError] = useState<string | null>(null);
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(true);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const docInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -417,14 +417,23 @@ export const ErrorDebugPopup: React.FC = () => {
     }
   };
 
-  const panelStyle: React.CSSProperties = {
-    position: "fixed",
-    left: pos.x,
-    top: pos.y,
-    width: size.w,
-    height: minimized ? "auto" : size.h,
-    zIndex: 2147483600,
-  };
+  const panelStyle: React.CSSProperties = minimized
+    ? {
+        position: "fixed",
+        right: 16,
+        bottom: 16,
+        width: 150,
+        height: "auto",
+        zIndex: 2147483600,
+      }
+    : {
+        position: "fixed",
+        left: pos.x,
+        top: pos.y,
+        width: size.w,
+        height: size.h,
+        zIndex: 2147483600,
+      };
 
   if (isCheckingAccess) {
     return (
@@ -482,7 +491,7 @@ export const ErrorDebugPopup: React.FC = () => {
   return (
     <div
       style={panelStyle}
-      className="bg-background border border-border rounded-md shadow-2xl flex flex-col overflow-hidden"
+      className="bg-background border border-border rounded-md shadow-2xl flex flex-col overflow-hidden max-w-[calc(100vw-2rem)]"
       role="dialog"
       aria-label="Debug Tool"
       onDrop={onDrop}
