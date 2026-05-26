@@ -417,14 +417,23 @@ export const ErrorDebugPopup: React.FC = () => {
     }
   };
 
-  const panelStyle: React.CSSProperties = {
-    position: "fixed",
-    left: pos.x,
-    top: pos.y,
-    width: size.w,
-    height: minimized ? "auto" : size.h,
-    zIndex: 2147483600,
-  };
+  const panelStyle: React.CSSProperties = minimized
+    ? {
+        position: "fixed",
+        right: 16,
+        bottom: 16,
+        width: 150,
+        height: "auto",
+        zIndex: 2147483600,
+      }
+    : {
+        position: "fixed",
+        left: pos.x,
+        top: pos.y,
+        width: size.w,
+        height: size.h,
+        zIndex: 2147483600,
+      };
 
   if (isCheckingAccess) {
     return (
