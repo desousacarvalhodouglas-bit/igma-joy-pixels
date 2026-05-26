@@ -129,18 +129,87 @@ export default function ServicosChat() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  const insertMessage = async (payload: Partial<Message>) => {
+    if (!me || !activeId) return;
+    const { error } = await supabase.from('svc_messages').insert({
+      conversation_id: activeId, sender_id: me, ...payload,
+    });
+    if (error) toast({ title: 'Erro ao enviar', description: error.message, variant: 'destructive' });
+    if (me) loadConversations(me);
+  };
+
   const send = async () => {
     if (!me || !activeId || !text.trim()) return;
     setSending(true);
     const content = text.trim();
     setText('');
-    const { error } = await supabase.from('svc_messages').insert({
-      conversation_id: activeId, sender_id: me, content,
-    });
-    if (error) toast({ title: 'Erro ao enviar', description: error.message, variant: 'destructive' });
+    await insertMessage({ content });
     setSending(false);
-    if (me) loadConversations(me);
   };
+
+  const uploadAndSend = async (file: Blob, mediaType: 'image' | 'audio', ext: string) => {
+    if (!me || !activeId) return;
+    setSending(true);
+    try {
+      const path = `${me}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('svc-chat').upload(path, file, {
+        contentType: file.type || (mediaType === 'image' ? 'image/jpeg' : 'audio/webm'),
+      });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from('svc-chat').getPublicUrl(path);
+      await insertMessage({ media_url: data.publicUrl, media_type: mediaType });
+    } catch (err: any) {
+      toast({ title: 'Erro no upload', description: err.message, variant: 'destructive' });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const onPickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = '';
+    if (f) uploadAndSend(f, 'image', f.name.split('.').pop() ?? 'jpg');
+  };
+
+  // Audio recording
+  const mediaRecRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const [recording, setRecording] = useState(false);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream);
+      chunksRef.current = [];
+      rec.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data);
+      rec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        await uploadAndSend(blob, 'audio', 'webm');
+        setRecording(false);
+      };
+      rec.start();
+      mediaRecRef.current = rec;
+      setRecording(true);
+    } catch (err: any) {
+      toast({ title: 'Microfone bloqueado', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const stopRecording = () => mediaRecRef.current?.stop();
+
+  const sendLocation = () => {
+    if (!navigator.geolocation) {
+      toast({ title: 'Geolocalização não suportada', variant: 'destructive' });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => insertMessage({ lat: pos.coords.latitude, lng: pos.coords.longitude, media_type: 'location' }),
+      (err) => toast({ title: 'Localização negada', description: err.message, variant: 'destructive' }),
+    );
+  };
+
+
 
   const otherUserId = (c: Conversation) => (c.user_a === me ? c.user_b : c.user_a);
   const activeConv = conversations.find((c) => c.id === activeId);
