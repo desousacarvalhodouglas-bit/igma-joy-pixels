@@ -624,7 +624,7 @@ export const ErrorDebugPopup: React.FC = () => {
               disabled={uploading}
               className="bg-destructive text-destructive-foreground text-xs font-semibold px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-50"
             >
-              {uploading ? "Enviando..." : "Gerar Erro"}
+              {uploading ? "Enviando..." : justSent ? "✓ Enviado!" : "Gerar Erro"}
             </button>
           </div>
           <div
