@@ -336,6 +336,7 @@ export const ErrorDebugPopup: React.FC = () => {
   };
 
   const [uploading, setUploading] = useState(false);
+  const [justSent, setJustSent] = useState(false);
 
   const dataUrlToBlob = (dataUrl: string): Blob => {
     const [header, base64] = dataUrl.split(",");
@@ -408,6 +409,12 @@ export const ErrorDebugPopup: React.FC = () => {
     }
 
     window.dispatchEvent(new CustomEvent("lovable-debug-error", { detail: message }));
+    setText("");
+    setImages([]);
+    setFiles([]);
+    setAttachError(null);
+    setJustSent(true);
+    setTimeout(() => setJustSent(false), 2500);
   }, [text, images, files]);
 
   const onTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -617,7 +624,7 @@ export const ErrorDebugPopup: React.FC = () => {
               disabled={uploading}
               className="bg-destructive text-destructive-foreground text-xs font-semibold px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-50"
             >
-              {uploading ? "Enviando..." : "Gerar Erro"}
+              {uploading ? "Enviando..." : justSent ? "✓ Enviado!" : "Gerar Erro"}
             </button>
           </div>
           <div
