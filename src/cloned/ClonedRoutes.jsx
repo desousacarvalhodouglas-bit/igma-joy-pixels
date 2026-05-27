@@ -22,59 +22,84 @@ import JobsPage from './pages/JobsPage';
 import HousingPage from './pages/HousingPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import { AuthContext } from './ClonedAuthContext';
-
-const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || '';
+import { supabase } from '@/integrations/supabase/client';
+import { getOrCreateSvcProfile, normalizeAuthUser } from './lib/authProfile';
 
 export function ClonedAuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   useTranslation();
+
+  const loadUser = async (session) => {
+    if (!session?.user) {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+      return null;
+    }
+
+    const profile = await getOrCreateSvcProfile(session.user);
+    const normalized = normalizeAuthUser(session.user, profile);
+    setUser(normalized);
+    setToken(session.access_token || null);
+    if (session.access_token) localStorage.setItem('token', session.access_token);
+    return normalized;
+  };
 
   useEffect(() => {
     let cancelled = false;
 
-    const fetchUser = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
+    const restoreSession = async () => {
       try {
-        const response = await fetch(`${backendUrl}/api/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!cancelled && response.ok) {
-          setUser(await response.json());
-        } else if (!cancelled) {
-          localStorage.removeItem('token');
-          setToken(null);
-          setUser(null);
-        }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!cancelled) await loadUser(session);
       } catch (error) {
         console.error('Error fetching user:', error);
+        if (!cancelled) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('token');
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
 
-    fetchUser();
+    restoreSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setToken(session?.access_token || null);
+      if (session?.access_token) localStorage.setItem('token', session.access_token);
+      else localStorage.removeItem('token');
+
+      setTimeout(() => {
+        loadUser(session).catch((error) => console.error('Error syncing auth user:', error));
+      }, 0);
+    });
+
     return () => {
       cancelled = true;
+      subscription.unsubscribe();
     };
-  }, [token]);
+  }, []);
 
-  const login = (newToken, userData) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-    setUser(userData);
+  const login = async (newToken, userData) => {
+    if (newToken) localStorage.setItem('token', newToken);
+    setToken(newToken || null);
+    setUser(userData || null);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+  };
+
+  const refreshUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return loadUser(session);
   };
 
   if (loading) {
@@ -88,14 +113,7 @@ export function ClonedAuthProvider({ children }) {
     );
   }
 
-  const previewUser = user || {
-    id: 'preview-user',
-    name: 'Usuário Preview',
-    role: 'admin',
-    email: 'preview@watizat.local',
-  };
-
-  return <AuthContext.Provider value={{ user: previewUser, token: token || 'preview-token', login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, token, loading, isAuthenticated: Boolean(user), login, logout, refreshUser }}>{children}</AuthContext.Provider>;
 }
 
 export function clonedRoutes(user) {
