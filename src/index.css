@@ -8,48 +8,48 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Paleta Goiás · Verde Cerrado + Dourado (trabalho/agricultura) */
+    /* Paleta oficial do app (Jataí Região Trabalho) */
     --background: 0 0% 100%;
-    --foreground: 158 35% 10%;
+    --foreground: 210 17% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 158 35% 10%;
+    --card-foreground: 210 17% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 158 35% 10%;
+    --popover-foreground: 210 17% 13%;
 
-    /* Verde Goiás (cerrado / bandeira) */
-    --primary: 142 72% 29%;
+    /* Verde primário oficial */
+    --primary: 142 71% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 142 65% 40%;
+    --primary-glow: 142 71% 55%;
 
-    /* Dourado/âmbar (estrela da bandeira, colheita) */
-    --secondary: 38 92% 50%;
-    --secondary-foreground: 158 35% 10%;
+    /* Laranja secundário oficial */
+    --secondary: 25 95% 53%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 150 20% 96%;
-    --muted-foreground: 158 12% 40%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 207 16% 39%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 158 35% 10%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 150 15% 90%;
-    --input: 150 15% 90%;
-    --ring: 142 72% 29%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 142 71% 45%;
 
     --radius: 1rem;
 
-    --sidebar-background: 150 25% 98%;
-    --sidebar-foreground: 158 20% 25%;
-    --sidebar-primary: 142 72% 29%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 210 17% 20%;
+    --sidebar-primary: 142 71% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 20% 94%;
-    --sidebar-accent-foreground: 158 20% 25%;
-    --sidebar-border: 150 15% 88%;
-    --sidebar-ring: 142 72% 29%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 210 17% 20%;
+    --sidebar-border: 0 0% 89.8%;
+    --sidebar-ring: 142 71% 45%;
   }
 
   .dark {
