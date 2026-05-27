@@ -511,7 +511,7 @@ export default function FeedPage() {
               </div>
             </button>
 
-            <div className="hidden lg:block w-8" />
+            
           </div>
         </div>
 
