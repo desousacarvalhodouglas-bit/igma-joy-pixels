@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../ClonedAuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -36,6 +36,75 @@ export default function ProfilePage() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [savingCategories, setSavingCategories] = useState(false);
   const [activeTab, setActiveTab] = useState('presentation');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photos, setPhotos] = useState([]);
+  const avatarInputRef = useRef(null);
+  const photoInputRef = useRef(null);
+
+  const fetchPhotos = async () => {
+    if (!user?.id) return;
+    const { data, error } = await supabase.storage
+      .from('svc-photos')
+      .list(`${user.id}/gallery`, { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
+    if (error) return;
+    const urls = (data || []).filter(f => f.name && !f.name.startsWith('.')).map(f => {
+      const { data: u } = supabase.storage.from('svc-photos').getPublicUrl(`${user.id}/gallery/${f.name}`);
+      return { name: f.name, url: u.publicUrl };
+    });
+    setPhotos(urls);
+  };
+
+  useEffect(() => { fetchPhotos(); }, [user?.id]);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('svc-photos').upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('svc-photos').getPublicUrl(path);
+      await updateSvcProfile(user.id, { avatar_url: pub.publicUrl });
+      await refreshUser?.();
+      toast.success('Foto de perfil atualizada!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Erro ao enviar foto');
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = '';
+    }
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+    setUploadingPhoto(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/gallery/photo-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('svc-photos').upload(path, file);
+      if (upErr) throw upErr;
+      toast.success('Foto adicionada!');
+      fetchPhotos();
+    } catch (err) {
+      console.error(err);
+      toast.error('Erro ao enviar foto');
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
+  const deletePhoto = async (name) => {
+    if (!user?.id) return;
+    const { error } = await supabase.storage.from('svc-photos').remove([`${user.id}/gallery/${name}`]);
+    if (error) toast.error('Erro ao excluir');
+    else { toast.success('Foto removida'); fetchPhotos(); }
+  };
 
   useEffect(() => {
     fetchUserProfile();
@@ -125,9 +194,22 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <span className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-[3px] border-white shadow" />
-                <button className="absolute top-1 right-1 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-100 hover:bg-gray-50 transition">
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute top-1 right-1 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-100 hover:bg-gray-50 transition disabled:opacity-60"
+                  title="Alterar foto de perfil"
+                >
                   <Camera size={14} className="text-primary" />
                 </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
               </div>
 
               {/* Identidade */}
@@ -367,20 +449,48 @@ export default function ProfilePage() {
           <div className="bg-white rounded-3xl p-6 shadow-card" data-testid="tab-photos">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">Minhas fotos</h3>
-              <Button size="sm" className="rounded-full bg-primary hover:bg-primary-hover">
-                <Camera size={16} className="mr-1" /> Adicionar
+              <Button
+                size="sm"
+                disabled={uploadingPhoto}
+                onClick={() => photoInputRef.current?.click()}
+                className="rounded-full bg-primary hover:bg-primary-hover"
+              >
+                <Camera size={16} className="mr-1" />
+                {uploadingPhoto ? 'Enviando...' : 'Adicionar'}
               </Button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              {[0,1,2,3,4,5].map(i => (
-                <div key={i} className="aspect-square rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-400">
-                  <Camera size={24} />
+            {photos.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                {photos.map(p => (
+                  <div key={p.name} className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                    <img src={p.url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => deletePhoto(p.name)}
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white text-xs opacity-0 group-hover:opacity-100 transition"
+                      title="Remover"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera size={22} className="text-primary" />
                 </div>
-              ))}
-            </div>
-            <p className="text-center text-textMuted text-sm mt-6">
-              Você ainda não publicou fotos. Clique em "Adicionar" para começar.
-            </p>
+                <p className="text-sm text-textMuted">
+                  Você ainda não publicou fotos. Clique em "Adicionar" para começar.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
