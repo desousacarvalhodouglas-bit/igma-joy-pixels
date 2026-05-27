@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
-import { Search, Wrench, MapPin, Star } from 'lucide-react';
+import { Search, Briefcase, MapPin, Star } from 'lucide-react';
 import i18n from '../i18n';
 import AuthModal from '../components/AuthModal';
+import goiasTrabalhoImg from '@/assets/goias-trabalho.jpg';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function LandingPage() {
                 <span className="text-green-500">Wati</span>
                 <span className="text-orange-500">zat</span>
               </span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-wide">{t('landingTagline') || 'Apoio para Migrantes'}</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-wide">Trabalho em Goiás</span>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -80,67 +81,72 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="mb-8">
-              <div className="inline-flex items-center space-x-2 bg-green-50 px-4 py-2 rounded-full mb-4">
-                <span className="text-green-600 font-semibold flex items-center space-x-1">
-                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+              <div className="inline-flex items-center space-x-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
+                <span className="text-primary font-semibold flex items-center space-x-1">
+                  <Star className="w-4 h-4 fill-secondary text-secondary" />
                   <span>4.9/5</span>
                 </span>
-                <span className="text-gray-600 text-sm">+500 pessoas ajudadas</span>
+                <span className="text-gray-600 text-sm">+2.000 vagas preenchidas em Goiás</span>
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-              Conectando migrantes
+              Seu próximo emprego
               <br />
-              <span className="text-green-600">e voluntários em Paris</span>
+              <span className="text-primary">está aqui em Goiás</span>
             </h1>
-            <p className="text-lg text-gray-600 mb-4">
-              A maior plataforma de apoio solidário para migrantes na França
+            <p className="text-lg text-gray-700 mb-2 font-medium">
+              Conectamos trabalhadores e empresas em todo o estado — do Cerrado às grandes cidades.
+            </p>
+            <p className="text-base text-gray-600 mb-4">
+              Agronegócio, indústria, comércio, serviços e tecnologia: encontre oportunidades reais perto de você ou anuncie sua vaga em minutos.
             </p>
             <div className="flex items-center space-x-2 mb-8 text-sm text-gray-600">
-              <MapPin className="w-5 h-5 text-green-600" />
-              <span>Disponível em Paris, Lyon, Marseille e mais cidades</span>
+              <MapPin className="w-5 h-5 text-primary" />
+              <span>Goiânia, Anápolis, Aparecida, Rio Verde, Jataí, Catalão e mais</span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button
                 onClick={() => openAuth('signup')}
-                className="bg-gray-900 hover:bg-gray-800 text-white h-14 px-8 text-base rounded-full"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground h-14 px-8 text-base rounded-full"
                 data-testid="cta-need-help"
               >
                 <Search className="w-5 h-5 mr-2" />
-                Preciso de Ajuda
+                Buscar Vagas
               </Button>
               <Button
                 onClick={() => openAuth('signup')}
                 variant="outline"
-                className="border-2 border-green-500 text-green-600 hover:bg-green-50 h-14 px-8 text-base rounded-full"
+                className="border-2 border-secondary text-secondary-foreground bg-secondary/10 hover:bg-secondary/20 h-14 px-8 text-base rounded-full"
                 data-testid="cta-want-help"
               >
-                <Wrench className="w-5 h-5 mr-2" />
-                Quero Ajudar
+                <Briefcase className="w-5 h-5 mr-2" />
+                Publicar Vaga
               </Button>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 mt-8">
               <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">500+</p>
-                <p className="text-sm text-gray-600">Migrantes apoiados</p>
+                <p className="text-3xl font-bold text-primary">2.000+</p>
+                <p className="text-sm text-gray-600">Vagas ativas</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">200+</p>
-                <p className="text-sm text-gray-600">Voluntários ativos</p>
+                <p className="text-3xl font-bold text-primary">800+</p>
+                <p className="text-sm text-gray-600">Empresas parceiras</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">1.2k+</p>
-                <p className="text-sm text-gray-600">Conexões feitas</p>
+                <p className="text-3xl font-bold text-primary">246</p>
+                <p className="text-sm text-gray-600">Municípios goianos</p>
               </div>
             </div>
           </div>
           <div className="relative">
             <div className="rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&q=85"
-                alt="Comunidade Watizat"
+                src={goiasTrabalhoImg}
+                alt="Trabalhadores de Goiás — agronegócio, indústria e serviços"
+                width={1024}
+                height={1024}
                 className="w-full h-[500px] object-cover"
               />
             </div>
@@ -149,20 +155,20 @@ export default function LandingPage() {
       </div>
 
       {/* Bottom CTA */}
-      <div className="bg-green-500 py-8">
+      <div className="bg-primary py-8">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
           <div className="mb-4 md:mb-0">
-            <p className="text-white text-lg font-medium mb-1">
-              Junte-se a milhares de pessoas na rede solidária Watizat
+            <p className="text-primary-foreground text-lg font-medium mb-1">
+              Goiás está contratando. Não fique de fora.
             </p>
-            <p className="text-green-50 text-sm">
-              Encontre ajuda ou ofereça apoio perto de você
+            <p className="text-primary-foreground/90 text-sm">
+              Cadastre-se grátis e receba vagas da sua região direto no seu perfil.
             </p>
           </div>
           <div className="flex items-center space-x-4">
             <Button
-              onClick={() => navigate('/auth')}
-              className="bg-white text-green-600 hover:bg-gray-100 px-8 rounded-full"
+              onClick={() => openAuth('signup')}
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-8 rounded-full"
               data-testid="bottom-cta-register"
             >
               Cadastrar-se Grátis
@@ -174,23 +180,23 @@ export default function LandingPage() {
       {/* Trust badges */}
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-          <div className="p-6 bg-gray-50 rounded-2xl">
+          <div className="p-6 bg-muted rounded-2xl">
             <div className="flex items-center justify-center gap-1 mb-2">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+                <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />
               ))}
               <span className="text-lg font-bold ml-2">4.9/5</span>
             </div>
-            <p className="text-sm text-gray-600">Avaliado por migrantes em Paris</p>
+            <p className="text-sm text-gray-600">Avaliado por trabalhadores em Goiás</p>
           </div>
-          <div className="p-6 bg-gray-50 rounded-2xl">
+          <div className="p-6 bg-muted rounded-2xl">
             <div className="flex items-center justify-center gap-1 mb-2">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+                <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />
               ))}
               <span className="text-lg font-bold ml-2">4.8/5</span>
             </div>
-            <p className="text-sm text-gray-600">Recomendado por voluntários</p>
+            <p className="text-sm text-gray-600">Recomendado por empresas contratantes</p>
           </div>
         </div>
       </div>
