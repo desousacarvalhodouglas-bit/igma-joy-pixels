@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Check, User, Heart, Shield, MapPin, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getOrCreateSvcProfile, normalizeAuthUser } from '../lib/authProfile';
+import jataiWorkImage from '@/assets/jatai-work.jpg';
 
 const HELP_CATEGORIES = [
   { value: 'food', label: 'Alimentação', icon: '🍽️', desc: 'Distribuição de alimentos, refeições' },
