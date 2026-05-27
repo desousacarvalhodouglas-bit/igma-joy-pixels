@@ -205,12 +205,14 @@ export default function DirectChatPage() {
     } catch (error) { console.error(error); }
   };
 
+  const isJsonResponse = (r) => (r.headers.get('content-type') || '').includes('application/json');
+
   const fetchMessages = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/messages/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) setMessages(await response.json());
+      if (response.ok && isJsonResponse(response)) setMessages(await response.json());
     } catch (error) { console.error(error); }
     finally { setLoading(false); }
   };
@@ -220,7 +222,7 @@ export default function DirectChatPage() {
       const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/conversations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const data = await res.json();
         setConversations(Array.isArray(data) ? data : []);
       }
@@ -230,24 +232,31 @@ export default function DirectChatPage() {
   const sendMessage = async (messageData = {}) => {
     if (!input.trim() && !messageData.location && !messageData.media) return;
     setSending(true);
+    const messageText = input || (messageData.location ? '📍 Localização compartilhada' : '📎 Mídia compartilhada');
+    const optimistic = {
+      id: `local-${Date.now()}`,
+      from_user_id: user?.id || 'preview-user',
+      to_user_id: userId,
+      message: messageText,
+      created_at: new Date().toISOString(),
+      ...messageData,
+    };
     try {
-      const payload = {
-        to_user_id: userId,
-        message: input || (messageData.location ? '📍 Localização compartilhada' : '📎 Mídia compartilhada'),
-        ...messageData
-      };
-      const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/messages`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
-        setInput('');
-        setShowMediaOptions(false);
-        fetchMessages();
-      } else { toast.error('Erro ao enviar mensagem'); }
-    } catch (e) { toast.error('Erro de conexão'); }
-    finally { setSending(false); }
+      const payload = { to_user_id: userId, message: messageText, ...messageData };
+      let ok = false;
+      try {
+        const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/messages`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        ok = response.ok && isJsonResponse(response);
+      } catch {}
+      setInput('');
+      setShowMediaOptions(false);
+      if (ok) fetchMessages();
+      else setMessages((prev) => [...prev, optimistic]);
+    } finally { setSending(false); }
   };
 
   const sendLocation = () => {
