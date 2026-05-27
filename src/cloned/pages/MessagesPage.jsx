@@ -5,6 +5,7 @@ import { Input } from '../components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Search, Send, Star, ArrowLeft, Home as HomeIcon, Users, Plus, BarChart3, MessageCircle, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { fetchChatConversations, fetchChatMessages, fetchChatUser, sendChatMessage } from '../lib/chatService';
 
 const formatDate = (iso) => {
   if (!iso) return '';
@@ -65,13 +66,8 @@ export default function MessagesPage() {
 
   const fetchConversations = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/conversations`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setConversations(Array.isArray(data) ? data : []);
-      }
+      const data = await fetchChatConversations(user?.id);
+      setConversations(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Failed to fetch conversations', e);
     }
@@ -79,13 +75,7 @@ export default function MessagesPage() {
 
   const fetchActiveUser = async (uid) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/users/${uid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setActiveUser(data);
-      }
+      setActiveUser(await fetchChatUser(uid));
     } catch (e) {
       console.error('Failed to fetch user', e);
     }
@@ -93,13 +83,8 @@ export default function MessagesPage() {
 
   const fetchMessages = async (uid) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/messages/${uid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(Array.isArray(data) ? data : []);
-      }
+      const data = await fetchChatMessages(uid, user?.id);
+      setMessages(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Failed to fetch messages', e);
     }
@@ -109,19 +94,13 @@ export default function MessagesPage() {
     if (!input.trim() || !activeUserId) return;
     setSending(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ to_user_id: activeUserId, message: input.trim() }),
-      });
-      if (res.ok) {
-        setInput('');
-        fetchMessages(activeUserId);
-        fetchConversations();
-      } else {
-        toast.error('Erro ao enviar');
-      }
+      const sent = await sendChatMessage(activeUserId, input.trim(), user?.id);
+      setInput('');
+      setMessages((prev) => [...prev, sent]);
+      fetchMessages(activeUserId);
+      fetchConversations();
     } catch (e) {
+      console.error('Failed to send message', e);
       toast.error('Erro de conexão');
     } finally {
       setSending(false);
@@ -327,7 +306,7 @@ export default function MessagesPage() {
                   <p className="text-center text-gray-400 text-sm mt-8">Nenhuma mensagem ainda. Diga olá!</p>
                 ) : (
                   messages.map((m, idx) => {
-                    const fromMe = m.from_user_id === user?.id;
+                    const fromMe = m.is_from_me || m.from_user_id === user?.id;
                     return (
                       <div key={m.id || idx} className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
                         <div
