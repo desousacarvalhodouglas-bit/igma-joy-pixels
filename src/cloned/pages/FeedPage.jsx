@@ -474,8 +474,8 @@ export default function FeedPage() {
             {/* Desktop: Logo (PertoDeMimServicos unchanged) */}
             <div className="hidden lg:flex items-center justify-center lg:justify-start">
               <span className="text-base font-bold">
-                <span className="text-green-500">Wati</span>
-                <span className="text-orange-500">zat</span>
+                <span className="text-green-500">PertoDeMim</span>
+                <span className="text-orange-500">Servicos</span>
               </span>
               <p className="hidden lg:block text-[10px] text-gray-500 ml-2">Paris (France)</p>
             </div>
