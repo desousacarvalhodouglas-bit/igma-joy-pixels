@@ -39,8 +39,11 @@ export default function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photos, setPhotos] = useState([]);
+  const [avatarOverride, setAvatarOverride] = useState(null);
   const avatarInputRef = useRef(null);
   const photoInputRef = useRef(null);
+
+  const avatarSrc = avatarOverride || user?.avatar_url;
 
   const fetchPhotos = async () => {
     if (!user?.id) return;
@@ -66,12 +69,14 @@ export default function ProfilePage() {
       const { error: upErr } = await supabase.storage.from('svc-photos').upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from('svc-photos').getPublicUrl(path);
-      await updateSvcProfile(user.id, { avatar_url: `${pub.publicUrl}?v=${Date.now()}` });
+      const newUrl = `${pub.publicUrl}?v=${Date.now()}`;
+      await updateSvcProfile(user.id, { avatar_url: newUrl });
+      setAvatarOverride(newUrl);
       await refreshUser?.();
       toast.success('Foto de perfil atualizada!');
     } catch (err) {
       console.error(err);
-      toast.error('Erro ao enviar foto');
+      toast.error(err?.message || 'Erro ao enviar foto');
     } finally {
       setUploadingAvatar(false);
       e.target.value = '';
