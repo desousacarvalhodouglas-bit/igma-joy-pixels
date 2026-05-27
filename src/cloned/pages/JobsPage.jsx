@@ -957,7 +957,7 @@ export default function JobsPage() {
                           {item.location && (
                             <span className="flex items-center gap-1">
                               <MapPin size={12} />
-                              Paris
+                              {item.location || 'Brasil'}
                             </span>
                           )}
                           <span className="flex items-center gap-1">
