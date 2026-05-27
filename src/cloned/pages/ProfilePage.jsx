@@ -66,7 +66,7 @@ export default function ProfilePage() {
       const { error: upErr } = await supabase.storage.from('svc-photos').upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from('svc-photos').getPublicUrl(path);
-      await updateSvcProfile(user.id, { avatar_url: pub.publicUrl });
+      await updateSvcProfile(user.id, { avatar_url: `${pub.publicUrl}?v=${Date.now()}` });
       await refreshUser?.();
       toast.success('Foto de perfil atualizada!');
     } catch (err) {
