@@ -8,31 +8,21 @@ import { Search, MapPin, Star, Clock, MessageCircle, Plus, Filter, Briefcase, Wr
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-// Plataformas de emprego externas
+// Plataformas de emprego externas (Brasil)
 const JOB_PLATFORMS = [
-  { 
-    id: 'indeed', 
-    name: 'Indeed', 
+  {
+    id: 'indeed',
+    name: 'Indeed Brasil',
     logo: '🔵',
     color: 'bg-blue-600',
-    baseUrl: 'https://fr.indeed.com/jobs',
+    baseUrl: 'https://br.indeed.com/jobs',
     searchParam: 'q',
     locationParam: 'l',
     description: 'Maior site de empregos do mundo'
   },
-  { 
-    id: 'pole_emploi', 
-    name: 'Pôle Emploi', 
-    logo: '🇫🇷',
-    color: 'bg-blue-800',
-    baseUrl: 'https://candidat.pole-emploi.fr/offres/recherche',
-    searchParam: 'motsCles',
-    locationParam: 'lieux',
-    description: 'Agência de emprego francesa'
-  },
-  { 
-    id: 'linkedin', 
-    name: 'LinkedIn', 
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
     logo: '💼',
     color: 'bg-blue-700',
     baseUrl: 'https://www.linkedin.com/jobs/search',
@@ -40,55 +30,65 @@ const JOB_PLATFORMS = [
     locationParam: 'location',
     description: 'Rede profissional mundial'
   },
-  { 
-    id: 'leboncoin', 
-    name: 'Leboncoin', 
+  {
+    id: 'catho',
+    name: 'Catho',
+    logo: '🟢',
+    color: 'bg-green-600',
+    baseUrl: 'https://www.catho.com.br/vagas',
+    searchParam: 'q',
+    locationParam: 'l',
+    description: 'Vagas de emprego no Brasil'
+  },
+  {
+    id: 'vagas',
+    name: 'Vagas.com',
+    logo: '🟡',
+    color: 'bg-yellow-500',
+    baseUrl: 'https://www.vagas.com.br/vagas-de',
+    searchParam: 'q',
+    locationParam: 'l',
+    description: 'Portal brasileiro de vagas'
+  },
+  {
+    id: 'infojobs',
+    name: 'InfoJobs',
     logo: '🟠',
     color: 'bg-orange-500',
-    baseUrl: 'https://www.leboncoin.fr/recherche',
-    searchParam: 'text',
-    locationParam: 'locations',
-    description: 'Anúncios classificados na França'
+    baseUrl: 'https://www.infojobs.com.br/empregos.aspx',
+    searchParam: 'palabra',
+    locationParam: 'provincia',
+    description: 'Empregos em todo Brasil'
   },
-  { 
-    id: 'monster', 
-    name: 'Monster', 
-    logo: '👾',
+  {
+    id: 'gupy',
+    name: 'Gupy',
+    logo: '🟣',
     color: 'bg-purple-600',
-    baseUrl: 'https://www.monster.fr/emploi/recherche',
+    baseUrl: 'https://portal.gupy.io/job-search',
+    searchParam: 'name',
+    locationParam: 'city',
+    description: 'Vagas em empresas brasileiras'
+  },
+  {
+    id: 'sine',
+    name: 'SINE',
+    logo: '🇧🇷',
+    color: 'bg-emerald-700',
+    baseUrl: 'https://servicos.mte.gov.br/sine',
     searchParam: 'q',
-    locationParam: 'where',
-    description: 'Portal de carreiras internacional'
-  },
-  { 
-    id: 'hellowork', 
-    name: 'HelloWork', 
-    logo: '👋',
-    color: 'bg-green-600',
-    baseUrl: 'https://www.hellowork.com/fr-fr/emploi/recherche.html',
-    searchParam: 'k',
     locationParam: 'l',
-    description: 'Empregos e formação na França'
+    description: 'Sistema Nacional de Emprego'
   },
-  { 
-    id: 'apec', 
-    name: 'APEC', 
-    logo: '🎯',
-    color: 'bg-red-600',
-    baseUrl: 'https://www.apec.fr/candidat/recherche-emploi.html/emploi',
-    searchParam: 'motsCles',
-    locationParam: 'lieu',
-    description: 'Empregos para executivos'
-  },
-  { 
-    id: 'welcometothejungle', 
-    name: 'Welcome to the Jungle', 
-    logo: '🌴',
-    color: 'bg-yellow-500',
-    baseUrl: 'https://www.welcometothejungle.com/fr/jobs',
-    searchParam: 'query',
-    locationParam: 'aroundQuery',
-    description: 'Startups e empresas inovadoras'
+  {
+    id: 'glassdoor',
+    name: 'Glassdoor',
+    logo: '🟩',
+    color: 'bg-green-700',
+    baseUrl: 'https://www.glassdoor.com.br/Vaga/index.htm',
+    searchParam: 'sc.keyword',
+    locationParam: 'locKeyword',
+    description: 'Vagas e avaliações de empresas'
   }
 ];
 
