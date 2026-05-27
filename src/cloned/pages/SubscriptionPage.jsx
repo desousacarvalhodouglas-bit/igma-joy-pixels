@@ -219,6 +219,22 @@ export default function SubscriptionPage() {
         {/* CENTER PANEL */}
         <main className="col-span-12 md:col-span-6">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8" data-testid="sub-center-panel">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{ITEM_LABEL[activeItem] || 'Assinatura'}</h2>
+            {activeItem !== 'perimetro' && (
+              <div className="text-sm text-gray-600">
+                {PRO_KEYS.has(activeItem) && !subStatus?.active ? (
+                  <div className="rounded-xl border border-dashed border-orange-300 bg-orange-50 p-4">
+                    Este recurso faz parte do plano <strong>PRO</strong>. Assine para desbloquear.
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-gray-200 p-4">
+                    Em breve: <strong>{ITEM_LABEL[activeItem]}</strong>.
+                  </div>
+                )}
+              </div>
+            )}
+            {activeItem === 'perimetro' && (<>
+
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">Gerenciar meu perímetro</h2>
 
             <div className="mb-6">
