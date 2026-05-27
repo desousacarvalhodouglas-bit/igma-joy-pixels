@@ -223,7 +223,7 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
             <button
               type="button"
               onClick={() => setMode('login')}
-              className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-4"
+              className="flex items-center gap-1 text-sm text-primary hover:opacity-80 mb-4"
               data-testid="signup-back"
             >
               <ArrowLeft className="w-4 h-4" /> Voltar
@@ -238,7 +238,7 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
                 onClick={() => setRole('migrant')}
                 className={`flex flex-col items-center justify-center py-4 rounded-xl border-2 transition-all ${
                   role === 'migrant'
-                    ? 'border-pink-400 bg-pink-50'
+                    ? 'border-primary bg-primary/10 text-primary'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
                 data-testid="role-procuro"
@@ -251,7 +251,7 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
                 onClick={() => setRole('helper')}
                 className={`flex flex-col items-center justify-center py-4 rounded-xl border-2 transition-all ${
                   role === 'helper'
-                    ? 'border-pink-400 bg-pink-50'
+                    ? 'border-primary bg-primary/10 text-primary'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
                 data-testid="role-ofereco"
@@ -275,7 +275,7 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
                 ) : (
                   <Camera className="w-8 h-8 text-gray-400" />
                 )}
-                <span className="absolute bottom-0 right-0 w-7 h-7 bg-pink-500 text-white rounded-full flex items-center justify-center shadow">
+                <span className="absolute bottom-0 right-0 w-7 h-7 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow">
                   <Plus className="w-4 h-4" />
                 </span>
               </button>
@@ -296,7 +296,7 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Seu nome"
-                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   data-testid="signup-name"
                 />
               </div>
@@ -308,7 +308,7 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
-                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   data-testid="signup-email"
                 />
               </div>
@@ -320,25 +320,37 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
-                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   data-testid="signup-password"
                 />
               </div>
               <div>
                 <label className="text-sm text-gray-700">Sua localização</label>
-                <input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Ex: São Paulo, SP"
-                  className="mt-1 w-full h-11 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
-                  data-testid="signup-location"
-                />
+                <div className="relative mt-1">
+                  <input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder={locating ? 'Detectando...' : 'Ex: São Paulo, SP'}
+                    className="w-full h-11 pl-4 pr-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    data-testid="signup-location"
+                  />
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={locating}
+                    title="Usar minha localização"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-md bg-primary/10 hover:bg-primary/20 text-primary flex items-center justify-center"
+                    data-testid="signup-locate"
+                  >
+                    {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 mt-2 bg-pink-500 hover:bg-pink-600 disabled:opacity-60 text-white font-semibold rounded-lg flex items-center justify-center transition-colors"
+                className="w-full h-12 mt-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-primary-foreground font-semibold rounded-lg flex items-center justify-center transition-colors"
                 data-testid="signup-submit"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Continuar'}
