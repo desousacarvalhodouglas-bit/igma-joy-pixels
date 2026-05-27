@@ -1,7 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export const getStableDefaultAvatarUrl = (user = {}) => {
-  const seed = user.id || user.email || user.user_id || 'watizat-user';
+  const account = user || {};
+  const seed = account.id || account.email || account.user_id || 'watizat-user';
   return `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(seed)}&radius=50&backgroundColor=22c55e,f97316,0ea5e9`;
 };
 
