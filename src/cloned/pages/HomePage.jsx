@@ -613,18 +613,10 @@ export default function HomePage() {
       {/* Jataí-Style Top Brand Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
         <div className="max-w-[1200px] mx-auto px-3 lg:px-4 py-2">
-          <div className="flex items-center justify-between">
-            {/* Avatar (mobile) / Logo + tagline */}
-            <button
-              onClick={() => navigate('/profile')}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-orange-400 text-white font-bold"
-              data-testid="brand-avatar"
-            >
-              {user?.name?.charAt(0)?.toUpperCase() || 'W'}
-            </button>
-
+          <div className="flex items-center justify-between gap-2">
+            {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-orange-400 text-white font-bold text-sm">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-orange-400 text-white font-bold text-sm">
                 W
               </div>
               <span className="text-base font-bold">
@@ -634,7 +626,7 @@ export default function HomePage() {
               <p className="hidden lg:block text-[10px] text-gray-500 ml-1">{t('landingTagline') || 'Apoio Solidário'}</p>
             </div>
 
-            {/* Emergency quick-actions */}
+            {/* Emergency quick-actions + Avatar (right corner) */}
             <div className="flex items-center gap-1.5">
               <a
                 href="tel:112"
@@ -651,6 +643,18 @@ export default function HomePage() {
               >
                 💬 {t('talkToMe')}
               </a>
+              <button
+                onClick={() => navigate('/profile')}
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-orange-400 text-white font-bold overflow-hidden ml-1"
+                data-testid="brand-avatar"
+                aria-label="Perfil"
+              >
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.charAt(0)?.toUpperCase() || 'W'
+                )}
+              </button>
             </div>
           </div>
         </div>
