@@ -100,7 +100,7 @@ export default function AuthPage() {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
             {
               headers: {
-                'User-Agent': 'Watizat-App'
+                'User-Agent': 'PertoDeMimServicos-App'
               }
             }
           );

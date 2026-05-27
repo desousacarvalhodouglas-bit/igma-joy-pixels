@@ -74,7 +74,7 @@ export default function ServicosAssinatura() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-0">
-      <SEOHead title="Assinatura — Watizat" description="Plano mensal Watizat." />
+      <SEOHead title="Assinatura — PertoDeMimServicos" description="Plano mensal PertoDeMimServicos." />
       <SvcHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-6">
@@ -84,7 +84,7 @@ export default function ServicosAssinatura() {
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-2 mb-4">
               <Crown className="w-6 h-6 text-yellow-500" />
-              <h2 className="text-xl font-bold">Plano Watizat</h2>
+              <h2 className="text-xl font-bold">Plano PertoDeMimServicos</h2>
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">

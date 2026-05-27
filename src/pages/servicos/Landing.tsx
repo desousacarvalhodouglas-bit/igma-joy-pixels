@@ -8,7 +8,7 @@ export default function ServicosLanding() {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
-      <SEOHead title="Watizat — Apoio para Migrantes" description="Plataforma solidária conectando migrantes e voluntários." />
+      <SEOHead title="PertoDeMimServicos — Apoio para Migrantes" description="Plataforma solidária conectando migrantes e voluntários." />
 
       <header className="border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -64,14 +64,14 @@ export default function ServicosLanding() {
             </div>
           </div>
           <div className="rounded-2xl overflow-hidden shadow-2xl">
-            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&q=85" alt="Comunidade Watizat" className="w-full h-[500px] object-cover" />
+            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&q=85" alt="Comunidade PertoDeMimServicos" className="w-full h-[500px] object-cover" />
           </div>
         </div>
       </section>
 
       <div className="bg-green-500 py-8">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-white text-lg font-medium mb-4 md:mb-0">Junte-se à rede solidária Watizat</p>
+          <p className="text-white text-lg font-medium mb-4 md:mb-0">Junte-se à rede solidária PertoDeMimServicos</p>
           <Button onClick={() => navigate('/servicos/auth?mode=register')} className="bg-white text-green-600 hover:bg-gray-100 rounded-full px-8 h-12">Começar Agora</Button>
         </div>
       </div>

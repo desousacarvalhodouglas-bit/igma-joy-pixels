@@ -54,7 +54,7 @@ export default function ServicosAuth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <SEOHead title={isLogin ? 'Entrar — Watizat' : 'Cadastrar — Watizat'} description="Acesse a plataforma solidária Watizat." />
+      <SEOHead title={isLogin ? 'Entrar — PertoDeMimServicos' : 'Cadastrar — PertoDeMimServicos'} description="Acesse a plataforma solidária PertoDeMimServicos." />
       <div className="w-full max-w-md space-y-6 bg-white p-8 rounded-2xl shadow-lg">
         <div className="flex flex-col items-center">
           <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-orange-400 rounded-lg flex items-center justify-center text-white font-bold text-xl mb-3">W</div>

@@ -91,7 +91,7 @@ export default function ServicosPerfil() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-0">
-      <SEOHead title="Perfil — Watizat" description="Seu perfil." />
+      <SEOHead title="Perfil — PertoDeMimServicos" description="Seu perfil." />
       <SvcHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-6">

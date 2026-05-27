@@ -73,7 +73,7 @@ export default function AIChat() {
               <Bot size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-heading font-bold text-textPrimary">Assistente Watizat</h1>
+              <h1 className="text-xl font-heading font-bold text-textPrimary">Assistente PertoDeMimServicos</h1>
               <p className="text-sm text-textMuted">Pergunte sobre serviços em Paris</p>
             </div>
           </div>

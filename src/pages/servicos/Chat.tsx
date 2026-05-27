@@ -225,7 +225,7 @@ export default function ServicosChat() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <SEOHead title="Mensagens — Watizat" description="Conversas diretas." />
+      <SEOHead title="Mensagens — PertoDeMimServicos" description="Conversas diretas." />
 
       {/* Header */}
       <header className="bg-green-600 text-white sticky top-0 z-40">

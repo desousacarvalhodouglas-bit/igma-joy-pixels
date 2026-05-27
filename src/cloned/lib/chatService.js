@@ -4,7 +4,7 @@ const PREVIEW_USERS = [
   {
     id: 'preview-migrant-1',
     name: 'Mariana Silva',
-    avatar: 'https://i.pravatar.cc/150?u=mariana-watizat',
+    avatar: 'https://i.pravatar.cc/150?u=mariana-pertodemimservicos',
     role: 'migrant',
     professional_area: 'Moradia',
     help_categories: ['housing'],
@@ -13,7 +13,7 @@ const PREVIEW_USERS = [
   {
     id: 'preview-helper-1',
     name: 'Lucas Martin',
-    avatar: 'https://i.pravatar.cc/150?u=lucas-watizat',
+    avatar: 'https://i.pravatar.cc/150?u=lucas-pertodemimservicos',
     role: 'helper',
     professional_area: 'Jurídico',
     help_categories: ['legal'],

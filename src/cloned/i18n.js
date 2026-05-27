@@ -5,7 +5,7 @@ const resources = {
   pt: {
     translation: {
       // Landing & Auth
-      welcome: 'Bem-vindo ao Watizat',
+      welcome: 'Bem-vindo ao PertoDeMimServicos',
       tagline: 'Conectando migrantes e ajudantes em Paris. Encontre apoio, ofereça ajuda, construa comunidade.',
       needHelp: 'Preciso de Ajuda',
       needHelpDesc: 'Encontre ajuda com trabalho, moradia, alimentação, serviços jurídicos e mais.',
@@ -486,7 +486,7 @@ const resources = {
   fr: {
     translation: {
       // Landing & Auth
-      welcome: 'Bienvenue à Watizat',
+      welcome: 'Bienvenue à PertoDeMimServicos',
       tagline: 'Connecter les migrants et les aidants à Paris. Trouvez du soutien, offrez de l\'aide, construisez une communauté.',
       needHelp: "J'ai besoin d'aide",
       needHelpDesc: 'Trouvez de l\'aide pour le travail, le logement, l\'alimentation, les services juridiques et plus encore.',
@@ -929,7 +929,7 @@ const resources = {
   en: {
     translation: {
       // Landing & Auth
-      welcome: 'Welcome to Watizat',
+      welcome: 'Welcome to PertoDeMimServicos',
       tagline: 'Connecting migrants and helpers in Paris. Find support, offer help, build community.',
       needHelp: 'I Need Help',
       needHelpDesc: 'Find help with work, housing, food, legal services and more.',
@@ -1372,7 +1372,7 @@ const resources = {
   es: {
     translation: {
       // Landing & Auth
-      welcome: 'Bienvenido a Watizat',
+      welcome: 'Bienvenido a PertoDeMimServicos',
       tagline: 'Conectando migrantes y ayudantes en París. Encuentra apoyo, ofrece ayuda, construye comunidad.',
       needHelp: 'Necesito Ayuda',
       needHelpDesc: 'Encuentra ayuda con trabajo, vivienda, alimentación, servicios legales y más.',

@@ -51,7 +51,7 @@ const PREVIEW_POSTS = [
     comments_count: 6,
     created_at: new Date(Date.now() - 1000 * 60 * 24).toISOString(),
     location: { address: 'Paris 18e, France', city: 'Paris' },
-    user: { name: 'Mariana Silva', avatar: 'https://i.pravatar.cc/150?u=mariana-watizat' },
+    user: { name: 'Mariana Silva', avatar: 'https://i.pravatar.cc/150?u=mariana-pertodemimservicos' },
   },
   {
     id: 'preview-offer-1',
@@ -67,11 +67,11 @@ const PREVIEW_POSTS = [
     comments_count: 11,
     created_at: new Date(Date.now() - 1000 * 60 * 58).toISOString(),
     location: { address: 'Bibliothèque François-Mitterrand', city: 'Paris' },
-    user: { name: 'Lucas Martin', avatar: 'https://i.pravatar.cc/150?u=lucas-watizat' },
+    user: { name: 'Lucas Martin', avatar: 'https://i.pravatar.cc/150?u=lucas-pertodemimservicos' },
   },
 ];
 
-// Jataí-style PostCard rendering Watizat posts
+// Jataí-style PostCard rendering PertoDeMimServicos posts
 const PostCard = ({ post, onChat }) => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes_count || 0);
@@ -471,7 +471,7 @@ export default function FeedPage() {
               </button>
             </div>
 
-            {/* Desktop: Logo (Watizat unchanged) */}
+            {/* Desktop: Logo (PertoDeMimServicos unchanged) */}
             <div className="hidden lg:flex items-center justify-center lg:justify-start">
               <span className="text-base font-bold">
                 <span className="text-green-500">Wati</span>

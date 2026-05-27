@@ -408,7 +408,7 @@ export default function HomePage() {
                 {post.is_auto_response && (
                   <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-primary/10 rounded-full w-fit">
                     <span className="text-lg">🤖</span>
-                    <span className="text-sm font-bold text-primary">Resposta Automática Watizat</span>
+                    <span className="text-sm font-bold text-primary">Resposta Automática PertoDeMimServicos</span>
                   </div>
                 )}
                 <div className="flex items-start justify-between mb-3">

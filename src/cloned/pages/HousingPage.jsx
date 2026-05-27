@@ -250,7 +250,7 @@ export default function HousingPage() {
               <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                 <Home size={18} className="text-white" />
               </div>
-              <span className="font-bold text-xl hidden sm:block text-orange-500">Watizat</span>
+              <span className="font-bold text-xl hidden sm:block text-orange-500">PertoDeMimServicos</span>
             </button>
 
             {/* Search Bar - Airbnb Style */}

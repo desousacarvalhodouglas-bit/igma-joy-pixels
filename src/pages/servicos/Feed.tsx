@@ -148,7 +148,7 @@ export default function ServicosFeed() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-0">
-      <SEOHead title="Início — Watizat" description="Feed de demandas e ofertas de serviços." />
+      <SEOHead title="Início — PertoDeMimServicos" description="Feed de demandas e ofertas de serviços." />
 
       {/* Header verde */}
       <header className="bg-green-600 text-white sticky top-0 z-40">

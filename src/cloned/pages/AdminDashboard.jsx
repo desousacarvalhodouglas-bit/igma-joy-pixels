@@ -55,7 +55,7 @@ export default function AdminDashboard() {
   // Estado para adicionar novo administrador
   const [showAddAdminDialog, setShowAddAdminDialog] = useState(false);
   const [newAdmin, setNewAdmin] = useState({
-    email: 'admin@watizat.com',
+    email: 'admin@pertodemimservicos.com',
     password: 'admin123',
     name: 'Administrador',
     role: 'admin',
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
         toast.success('Administrador criado com sucesso!');
         setShowAddAdminDialog(false);
         setNewAdmin({
-          email: 'admin@watizat.com',
+          email: 'admin@pertodemimservicos.com',
           password: 'admin123',
           name: 'Administrador',
           role: 'admin',
@@ -1337,7 +1337,7 @@ export default function AdminDashboard() {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
               <p className="text-sm text-blue-800">
                 <strong>📝 Credenciais padrão:</strong><br/>
-                Email: admin@watizat.com<br/>
+                Email: admin@pertodemimservicos.com<br/>
                 Senha: admin123
               </p>
             </div>

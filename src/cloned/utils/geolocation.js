@@ -77,7 +77,7 @@ export const requestLocationPermission = async (options = {}) => {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.lat}&lon=${location.lng}`,
             {
               headers: {
-                'User-Agent': 'Watizat-App'
+                'User-Agent': 'PertoDeMimServicos-App'
               }
             }
           );

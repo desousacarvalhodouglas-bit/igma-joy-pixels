@@ -77,7 +77,7 @@ export default function ServicosAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-0">
-      <SEOHead title="Admin — Watizat" description="Painel administrativo." />
+      <SEOHead title="Admin — PertoDeMimServicos" description="Painel administrativo." />
       <SvcHeader />
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-4">
