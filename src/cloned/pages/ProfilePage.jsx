@@ -191,8 +191,8 @@ export default function ProfilePage() {
               {/* Avatar grande com online dot */}
               <div className="relative flex-shrink-0">
                 <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                  {avatarSrc ? (
+                    <img key={avatarSrc} src={avatarSrc} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <User size={60} className="text-white" />
                   )}
