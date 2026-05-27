@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { AuthContext } from '../App';
+import { AuthContext } from '../ClonedAuthContext';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import BottomNav from '../components/BottomNav';

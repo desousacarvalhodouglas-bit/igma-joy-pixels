@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
-import { AuthContext } from '../App';
+import { AuthContext } from '../ClonedAuthContext';
 import { Button } from '../components/ui/button';
 import BottomNav from '../components/BottomNav';
 import { MapPin, Filter, Phone, Clock, ExternalLink, Navigation, Info, Target, Loader2, AlertCircle, Sun, Moon } from 'lucide-react';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../App';
+import { AuthContext } from '../ClonedAuthContext';
 import {
   MapPin, Eye, Edit2, Star, Globe, MessageSquare, ChevronRight,
   Home as HomeIcon, Users as UsersIcon, Plus, BarChart3, Bell,

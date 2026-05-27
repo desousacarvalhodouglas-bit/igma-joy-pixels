@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
-import { AuthContext } from '../App';
+import { AuthContext } from '../ClonedAuthContext';
 import { Button } from '../components/ui/button';
 import BottomNav from '../components/BottomNav';
 import { MapPin, Navigation, User, Phone, MessageCircle, Loader2, Filter, X, RefreshCw, Building2, Clock, ExternalLink, Sun, Moon, Target } from 'lucide-react';
