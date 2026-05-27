@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './i18n';
 import './App.css';
+import { supabase } from '@/integrations/supabase/client';
+import { getOrCreateSvcProfile, normalizeAuthUser } from './lib/authProfile';
 
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
@@ -26,49 +28,53 @@ export const AuthContext = React.createContext();
 
 function App() {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
 
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const fetchUser = async () => {
+  const hydrate = async (authUser) => {
+    if (!authUser) { setUser(null); return; }
     try {
-      const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      } else {
-        logout();
-      }
-    } catch (error) {
-      console.error('Error fetching user:', error);
-    } finally {
-      setLoading(false);
-    }
+      const profile = await getOrCreateSvcProfile(authUser);
+      const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', authUser.id);
+      const isAdmin = (roles ?? []).some((r) => r.role === 'admin');
+      const normalized = normalizeAuthUser(authUser, profile);
+      setUser({ ...normalized, role: isAdmin ? 'admin' : normalized.role });
+    } catch (e) { console.error('hydrate error', e); }
   };
 
-  const login = (newToken, userData) => {
-    localStorage.setItem('token', newToken);
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
+      setToken(session?.access_token ?? null);
+      hydrate(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setToken(session?.access_token ?? null);
+      hydrate(session?.user ?? null).finally(() => setLoading(false));
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const refreshUser = async () => {
+    const { data: { user: u } } = await supabase.auth.getUser();
+    await hydrate(u);
+  };
+
+  const login = async (newToken, userData) => {
     setToken(newToken);
     setUser(userData);
+    // ensure full hydration (role, profile) afterwards
+    const { data: { user: u } } = await supabase.auth.getUser();
+    await hydrate(u);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    await supabase.auth.signOut();
     setToken(null);
     setUser(null);
   };
+
+
 
   if (loading) {
     return (
@@ -82,7 +88,7 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, refreshUser }}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={!user ? <LandingPage /> : <Navigate to="/home" />} />

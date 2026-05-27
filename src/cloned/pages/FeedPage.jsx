@@ -573,11 +573,11 @@ export default function FeedPage() {
             </p>
             <div className="flex justify-center">
               <Button
-                onClick={() => navigate('/housing')}
+                onClick={() => navigate('/assinatura')}
                 className="bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-full px-6 h-9 shadow-sm text-sm"
                 data-testid="banner-cta"
               >
-                Explorar Hospedagem
+                Assinatura
               </Button>
             </div>
           </div>
