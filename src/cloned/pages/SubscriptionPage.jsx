@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
+import { getStableDefaultAvatarUrl } from '../lib/authProfile';
 
 const NAV_DESKTOP = [
   { label: 'Acolhida', icon: HomeIcon, route: '/home' },
@@ -123,7 +124,7 @@ export default function SubscriptionPage() {
     }
   };
 
-  const avatarUrl = user?.avatar || `https://i.pravatar.cc/200?u=${user?.email || 'me'}`;
+  const avatarUrl = user?.avatar_url || user?.avatar || getStableDefaultAvatarUrl(user);
 
   return (
     <div className="min-h-screen bg-white pb-20 md:pb-0" data-testid="subscription-page">

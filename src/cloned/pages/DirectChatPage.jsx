@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import MapPreview from '../components/MapPreview';
 import { fetchChatConversations, fetchChatMessages, fetchChatUser, sendChatMessage } from '../lib/chatService';
+import { getStableDefaultAvatarUrl } from '../lib/authProfile';
 
 const CATEGORY_INFO = {
   food: { icon: '🍽️', label: 'Alimentação', color: 'bg-green-100 text-green-700' },
@@ -373,7 +374,7 @@ export default function DirectChatPage() {
   // Post atual relacionado à conversa
   const currentPost = userPosts.find(p => p.type === 'need') || userPosts[0];
 
-  const avatarUrl = (u) => u?.avatar || u?.avatar_url || (u?.id ? `https://i.pravatar.cc/200?u=${u.id}` : 'https://i.pravatar.cc/200?u=guest');
+  const avatarUrl = (u) => u?.avatar_url || u?.avatar || getStableDefaultAvatarUrl(u);
 
   return (
     <div className="min-h-screen bg-[#f4f5f7] pb-20 md:pb-0" data-testid="direct-chat-page">

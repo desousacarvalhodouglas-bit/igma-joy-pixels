@@ -11,6 +11,7 @@ import VideoPlayer from '../components/VideoPlayer';
 import { Dialog, DialogContent } from '../components/ui/dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { getStableDefaultAvatarUrl } from '../lib/authProfile';
 
 // Local fallback store so the feed works even without auth/backend
 const LOCAL_KEY = 'cloned_feed_posts_v1';
@@ -406,7 +407,7 @@ export default function FeedPage() {
   };
 
 
-  const userAvatar = user?.avatar || `https://i.pravatar.cc/150?u=${user?.email || 'me'}`;
+  const userAvatar = user?.avatar_url || user?.avatar || getStableDefaultAvatarUrl(user);
   const userInitial = (user?.name || 'U').charAt(0).toUpperCase();
 
   return (

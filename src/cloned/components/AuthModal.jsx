@@ -128,20 +128,18 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
       });
       if (error) throw error;
 
-      // upload avatar (opcional, apenas quando já existe sessão autenticada)
-      if (avatarFile && data.user && data.session) {
-        const path = `${data.user.id}/${Date.now()}-${avatarFile.name}`;
-        const { error: upErr } = await supabase.storage
-          .from('svc-photos')
-          .upload(path, avatarFile, { upsert: true });
-        if (!upErr) {
-          const { data: pub } = supabase.storage.from('svc-photos').getPublicUrl(path);
-          await updateSvcProfile(data.user.id, { avatar_url: pub.publicUrl });
-        }
-      }
-
       if (data.session) {
-        const profile = await getOrCreateSvcProfile(data.user, { display_name: name, role, city: location });
+        let profile = await getOrCreateSvcProfile(data.user, { display_name: name, role, city: location });
+        if (avatarFile && data.user) {
+          const path = `${data.user.id}/avatar`;
+          const { error: upErr } = await supabase.storage
+            .from('svc-photos')
+            .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
+          if (!upErr) {
+            const { data: pub } = supabase.storage.from('svc-photos').getPublicUrl(path);
+            profile = await updateSvcProfile(data.user.id, { avatar_url: `${pub.publicUrl}?v=${Date.now()}` });
+          }
+        }
         await login(data.session.access_token, normalizeAuthUser(data.user, profile));
         await refreshUser?.();
         toast.success('Conta criada!');

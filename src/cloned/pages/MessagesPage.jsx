@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Search, Send, Star, ArrowLeft, Home as HomeIcon, Users, Plus, BarChart3, MessageCircle, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchChatConversations, fetchChatMessages, fetchChatUser, sendChatMessage } from '../lib/chatService';
+import { getStableDefaultAvatarUrl } from '../lib/authProfile';
 
 const formatDate = (iso) => {
   if (!iso) return '';
@@ -114,8 +115,8 @@ export default function MessagesPage() {
     return true;
   });
 
-  const userAvatar = user?.avatar || `https://i.pravatar.cc/150?u=${user?.email || 'me'}`;
-  const activeAvatar = activeUser?.avatar || `https://i.pravatar.cc/150?u=${activeUser?.email || activeUserId}`;
+  const userAvatar = user?.avatar_url || user?.avatar || getStableDefaultAvatarUrl(user);
+  const activeAvatar = activeUser?.avatar_url || activeUser?.avatar || getStableDefaultAvatarUrl(activeUser || { id: activeUserId });
 
   return (
     <div
