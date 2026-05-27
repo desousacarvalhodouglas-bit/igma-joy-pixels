@@ -106,121 +106,132 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        {/* Hero Card Personalizado */}
-        <div className="relative bg-white rounded-3xl shadow-card overflow-hidden mb-6">
-          {/* Cover banner com gradiente e padrões */}
-          <div className="relative h-36 bg-gradient-to-br from-primary via-primary to-accent overflow-hidden">
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/30 blur-2xl" />
-              <div className="absolute top-10 left-10 w-24 h-24 rounded-full bg-accent/40 blur-xl" />
-              <div className="absolute bottom-0 right-1/3 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
-            </div>
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs font-medium">
-              <Sparkles size={12} />
-              Membro ativo
-            </div>
-          </div>
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Hero estilo AlloVoisins */}
+        <div className="bg-white rounded-3xl shadow-card overflow-hidden mb-6">
+          {/* Cover banner cinza/gradiente sutil */}
+          <div className="relative h-20 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-400" />
 
-          {/* Avatar sobreposto */}
-          <div className="px-6 pb-6 -mt-14">
-            <div className="flex items-end justify-between mb-4">
-              <div className="relative">
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-accent ring-4 ring-white shadow-xl flex items-center justify-center overflow-hidden">
+          {/* Linha avatar + identidade */}
+          <div className="px-6 sm:px-10 pb-6 -mt-14">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-5">
+              {/* Avatar grande com online dot */}
+              <div className="relative flex-shrink-0">
+                <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden">
                   {user?.avatar_url ? (
                     <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <User size={52} className="text-white" />
+                    <User size={60} className="text-white" />
                   )}
                 </div>
-                <button className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-100 hover:bg-gray-50 transition">
+                <span className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-[3px] border-white shadow" />
+                <button className="absolute top-1 right-1 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-100 hover:bg-gray-50 transition">
                   <Camera size={14} className="text-primary" />
                 </button>
               </div>
-              <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-semibold mb-2">
-                <Shield size={12} />
-                Verificado
-              </div>
-            </div>
 
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-2xl font-heading font-bold text-textPrimary" data-testid="user-name">
-                  {user?.use_display_name && user?.display_name ? user.display_name : user?.name}
-                </h2>
-                <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                  <DialogTrigger asChild>
-                    <button className="p-1.5 hover:bg-gray-100 rounded-full transition-all">
-                      <Edit size={16} className="text-primary" />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="rounded-3xl">
-                    <DialogHeader>
-                      <DialogTitle>Nome Fictício (Privacidade)</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Nome Fictício</Label>
-                        <Input
-                          value={displayName}
-                          onChange={(e) => setDisplayName(e.target.value)}
-                          placeholder="Ex: Maria S., João A."
-                          className="rounded-xl mt-2"
-                        />
-                        <p className="text-xs text-textMuted mt-2">
-                          Este nome aparecerá nos posts em vez do seu nome real
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={useDisplayName}
-                          onChange={(e) => setUseDisplayName(e.target.checked)}
-                          className="w-5 h-5 rounded border-gray-300"
-                        />
-                        <Label>Usar nome fictício nos posts</Label>
-                      </div>
-                      <Button
-                        onClick={saveDisplayName}
-                        className="w-full rounded-full py-6 bg-primary hover:bg-primary-hover"
-                      >
-                        Salvar
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              {user?.use_display_name && user?.display_name && (
-                <p className="text-xs text-textMuted mb-1">Nome fictício ativo</p>
-              )}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-accent/15 text-accent rounded-full text-xs font-semibold capitalize" data-testid="user-role">
-                  {user?.role === 'migrant' ? '🌍 ' + t('migrant') : user?.role === 'helper' ? '🤝 ' + t('helper') : user?.role}
-                </span>
-                {user?.location && (
-                  <span className="inline-flex items-center gap-1 text-xs text-textMuted">
-                    <MapPin size={12} /> {user.location}
+              {/* Identidade */}
+              <div className="flex-1 min-w-0 pt-2 sm:pb-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
+                    {user?.role === 'helper' ? 'Profissional' : 'Particular'}
                   </span>
-                )}
-              </div>
-            </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-primary/10 text-primary rounded-md text-xs font-semibold">
+                    <Shield size={11} /> Verificado
+                  </span>
+                </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2 mt-5 pt-5 border-t border-gray-100">
-              <div className="text-center">
-                <div className="text-xl font-bold text-textPrimary">{selectedCategories.length}</div>
-                <div className="text-[11px] text-textMuted uppercase tracking-wide">Categorias</div>
-              </div>
-              <div className="text-center border-x border-gray-100">
-                <div className="text-xl font-bold text-textPrimary">{user?.languages?.length || 0}</div>
-                <div className="text-[11px] text-textMuted uppercase tracking-wide">Idiomas</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-textPrimary">0</div>
-                <div className="text-[11px] text-textMuted uppercase tracking-wide">Ajudas</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-3xl font-heading font-bold text-textPrimary leading-tight" data-testid="user-name">
+                    {user?.use_display_name && user?.display_name ? user.display_name : user?.name}
+                  </h2>
+                  <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                    <DialogTrigger asChild>
+                      <button className="p-1.5 hover:bg-gray-100 rounded-full transition-all">
+                        <Edit size={16} className="text-primary" />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="rounded-3xl">
+                      <DialogHeader>
+                        <DialogTitle>Nome Fictício (Privacidade)</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Nome Fictício</Label>
+                          <Input
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            placeholder="Ex: Maria S., João A."
+                            className="rounded-xl mt-2"
+                          />
+                          <p className="text-xs text-textMuted mt-2">
+                            Este nome aparecerá nos posts em vez do seu nome real
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={useDisplayName}
+                            onChange={(e) => setUseDisplayName(e.target.checked)}
+                            className="w-5 h-5 rounded border-gray-300"
+                          />
+                          <Label>Usar nome fictício nos posts</Label>
+                        </div>
+                        <Button
+                          onClick={saveDisplayName}
+                          className="w-full rounded-full py-6 bg-primary hover:bg-primary-hover"
+                        >
+                          Salvar
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                {user?.display_name && (
+                  <p className="text-textSecondary font-semibold mt-1" data-testid="user-display-name">
+                    {user.display_name}
+                  </p>
+                )}
+                {user?.location && (
+                  <p className="text-textSecondary flex items-center gap-1 mt-0.5">
+                    <MapPin size={14} /> {user.location}
+                  </p>
+                )}
+                <p className="text-green-600 text-sm font-medium flex items-center gap-1.5 mt-1">
+                  <span className="w-2 h-2 bg-green-500 rounded-full" /> Em linha
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Tabs */}
+          <div className="border-t border-gray-100 px-6 sm:px-10">
+            <div className="flex gap-8 -mb-px overflow-x-auto">
+              {[
+                { id: 'presentation', label: 'Apresentação' },
+                { id: 'photos', label: 'Fotos' },
+                { id: 'reviews', label: 'Avaliações' },
+                { id: 'activity', label: 'Atividade' },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-primary text-textPrimary'
+                      : 'border-transparent text-textMuted hover:text-textPrimary'
+                  }`}
+                  data-testid={`profile-tab-${tab.id}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+
         </div>
 
         {/* Informações de contato */}
