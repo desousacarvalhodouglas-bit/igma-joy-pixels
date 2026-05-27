@@ -250,7 +250,7 @@ export default function HousingPage() {
               <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                 <Home size={18} className="text-white" />
               </div>
-              <span className="font-bold text-xl hidden sm:block text-rose-500">Watizat</span>
+              <span className="font-bold text-xl hidden sm:block text-orange-500">Watizat</span>
             </button>
 
             {/* Search Bar - Airbnb Style */}
@@ -270,7 +270,7 @@ export default function HousingPage() {
                 </button>
                 <button 
                   onClick={() => setShowFiltersModal(true)}
-                  className="p-3 mx-1 bg-rose-500 hover:bg-rose-600 rounded-full text-white transition-colors"
+                  className="p-3 mx-1 bg-orange-500 hover:bg-orange-600 rounded-full text-white transition-colors"
                 >
                   <SlidersHorizontal size={16} />
                 </button>
@@ -339,7 +339,7 @@ export default function HousingPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-center gap-8 sm:gap-16">
             <div className="text-center">
-              <p className="text-2xl sm:text-3xl font-bold text-rose-600">
+              <p className="text-2xl sm:text-3xl font-bold text-orange-600">
                 {listings.filter(l => l.listing_type === 'offer').length}
               </p>
               <p className="text-xs sm:text-sm text-gray-600">{t('availableHomes')}</p>
@@ -381,7 +381,7 @@ export default function HousingPage() {
             <p className="text-gray-500 mb-6">{t('beFirstToOffer')}</p>
             <Button 
               onClick={() => setShowCreateModal(true)} 
-              className="rounded-full bg-rose-500 hover:bg-rose-600 px-8"
+              className="rounded-full bg-orange-500 hover:bg-orange-600 px-8"
             >
               <Plus size={18} className="mr-2" />
               {t('createListing')}
@@ -413,7 +413,7 @@ export default function HousingPage() {
                   >
                     <Heart 
                       size={20} 
-                      className={favorites.includes(listing.id) ? 'fill-rose-500 text-rose-500' : 'text-gray-600'}
+                      className={favorites.includes(listing.id) ? 'fill-orange-500 text-orange-500' : 'text-gray-600'}
                     />
                   </button>
 
@@ -528,7 +528,7 @@ export default function HousingPage() {
                   >
                     <Heart 
                       size={20} 
-                      className={favorites.includes(selectedListing.id) ? 'fill-rose-500 text-rose-500' : ''}
+                      className={favorites.includes(selectedListing.id) ? 'fill-orange-500 text-orange-500' : ''}
                     />
                   </button>
                 </div>
@@ -683,7 +683,7 @@ export default function HousingPage() {
                       setSelectedListing(null);
                       navigate(`/direct-chat/${selectedListing.user_id}`);
                     }}
-                    className="rounded-full bg-rose-500 hover:bg-rose-600"
+                    className="rounded-full bg-orange-500 hover:bg-orange-600"
                   >
                     <MessageCircle size={18} className="mr-2" />
                     {t('contact')}
@@ -806,7 +806,7 @@ export default function HousingPage() {
                           onClick={() => setNewListing({...newListing, city: city.name})}
                           className={`p-2 rounded-xl border-2 text-center transition-all ${
                             newListing.city === city.name
-                              ? 'border-rose-500 bg-rose-50'
+                              ? 'border-orange-500 bg-orange-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -834,7 +834,7 @@ export default function HousingPage() {
                             onClick={() => setNewListing({...newListing, accommodation_type: type.value})}
                             className={`p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
                               newListing.accommodation_type === type.value
-                                ? 'border-rose-500 bg-rose-50'
+                                ? 'border-orange-500 bg-orange-50'
                                 : 'border-gray-200 hover:border-gray-300'
                             }`}
                           >
@@ -856,7 +856,7 @@ export default function HousingPage() {
                           onClick={() => setNewListing({...newListing, duration: dur.value})}
                           className={`p-3 rounded-xl border-2 transition-all text-left ${
                             newListing.duration === dur.value
-                              ? 'border-rose-500 bg-rose-50'
+                              ? 'border-orange-500 bg-orange-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -872,7 +872,7 @@ export default function HousingPage() {
                   {listingType === 'offer' && (
                     <div>
                       <Label className="text-sm font-semibold mb-2 block flex items-center gap-2">
-                        <Calendar size={16} className="text-rose-500" />
+                        <Calendar size={16} className="text-orange-500" />
                         {t('availability')}
                       </Label>
                       <div className="grid grid-cols-2 gap-3">
@@ -950,7 +950,7 @@ export default function HousingPage() {
                             onClick={() => toggleAmenity(amenity.id)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all ${
                               newListing.amenities.includes(amenity.id)
-                                ? 'border-rose-500 bg-rose-50 text-rose-700'
+                                ? 'border-orange-500 bg-orange-50 text-orange-700'
                                 : 'border-gray-200 text-gray-600 hover:border-gray-300'
                             }`}
                           >
@@ -971,7 +971,7 @@ export default function HousingPage() {
                     <button
                       onClick={() => setNewListing({...newListing, pets_allowed: !newListing.pets_allowed})}
                       className={`w-14 h-8 rounded-full transition-all ${
-                        newListing.pets_allowed ? 'bg-rose-500' : 'bg-gray-300'
+                        newListing.pets_allowed ? 'bg-orange-500' : 'bg-gray-300'
                       }`}
                     >
                       <div className={`w-6 h-6 bg-white rounded-full shadow transform transition-transform ${
@@ -995,7 +995,7 @@ export default function HousingPage() {
                   {/* Photos Upload */}
                   <div>
                     <Label className="text-sm font-semibold mb-2 block flex items-center gap-2">
-                      <Camera size={16} className="text-rose-500" />
+                      <Camera size={16} className="text-orange-500" />
                       📸 {t('addPhotos')} <span className="text-gray-400 font-normal text-xs">(opcional)</span>
                     </Label>
 
