@@ -87,8 +87,8 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
       });
       if (error) throw error;
 
-      // upload avatar (opcional)
-      if (avatarFile && data.user) {
+      // upload avatar (opcional, apenas quando já existe sessão autenticada)
+      if (avatarFile && data.user && data.session) {
         const path = `${data.user.id}/${Date.now()}-${avatarFile.name}`;
         const { error: upErr } = await supabase.storage
           .from('svc-photos')
