@@ -231,137 +231,216 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Informações de contato */}
-
-        <div className="bg-white rounded-3xl p-6 shadow-card space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-textSecondary">
-              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                <Mail size={16} className="text-primary" />
-              </div>
-              <span className="text-sm" data-testid="user-email">{user?.email}</span>
-            </div>
-            {user?.languages && user.languages.length > 0 && (
+        {/* Tab: Apresentação */}
+        {activeTab === 'presentation' && (
+          <div className="bg-white rounded-3xl p-6 shadow-card space-y-6" data-testid="tab-presentation">
+            <div className="space-y-4">
               <div className="flex items-center gap-3 text-textSecondary">
                 <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Globe size={16} className="text-primary" />
+                  <Mail size={16} className="text-primary" />
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                  {user.languages.map(lang => (
-                    <span key={lang} className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium">
-                      {lang.toUpperCase()}
-                    </span>
-                  ))}
-                </div>
+                <span className="text-sm" data-testid="user-email">{user?.email}</span>
               </div>
-            )}
-          </div>
-
-
-          {/* Seção de Categorias de Ajuda */}
-          <div className="border-t border-gray-100 pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary flex items-center gap-2">
-                <Heart size={20} className="text-primary" />
-                Categorias que você ajuda
-              </h3>
-              <Dialog open={showCategoriesDialog} onOpenChange={setShowCategoriesDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="rounded-full">
-                    <Edit size={16} className="mr-1" />
-                    Editar
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="rounded-3xl max-h-[85vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      🤝 Categorias de Ajuda
-                    </DialogTitle>
-                    <p className="text-sm text-textSecondary">
-                      Selecione as categorias em que você pode oferecer ajuda
-                    </p>
-                  </DialogHeader>
-                  
-                  <div className="grid grid-cols-2 gap-3 my-4">
-                    {HELP_CATEGORIES.map(cat => (
-                      <button
-                        key={cat.value}
-                        type="button"
-                        onClick={() => toggleCategory(cat.value)}
-                        className={`p-3 rounded-xl border-2 transition-all text-left relative ${
-                          selectedCategories.includes(cat.value)
-                            ? 'bg-primary/10 border-primary shadow-md'
-                            : 'bg-white border-gray-200 hover:border-primary/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{cat.icon}</span>
-                          <span className={`text-sm font-medium ${
-                            selectedCategories.includes(cat.value) ? 'text-primary' : 'text-textPrimary'
-                          }`}>
-                            {cat.label}
-                          </span>
-                        </div>
-                        {selectedCategories.includes(cat.value) && (
-                          <div className="absolute top-2 right-2">
-                            <Check size={14} className="text-primary" />
-                          </div>
-                        )}
-                      </button>
+              {user?.languages && user.languages.length > 0 && (
+                <div className="flex items-center gap-3 text-textSecondary">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Globe size={16} className="text-primary" />
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {user.languages.map(lang => (
+                      <span key={lang} className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium">
+                        {lang.toUpperCase()}
+                      </span>
                     ))}
                   </div>
-
-                  {selectedCategories.length > 0 && (
-                    <div className="p-3 bg-green-50 rounded-xl border border-green-200 mb-4">
-                      <p className="text-sm text-green-700 flex items-center gap-2">
-                        <Check size={16} />
-                        {selectedCategories.length} categoria{selectedCategories.length > 1 ? 's' : ''} selecionada{selectedCategories.length > 1 ? 's' : ''}
-                      </p>
-                    </div>
-                  )}
-
-                  <Button
-                    onClick={saveCategories}
-                    disabled={savingCategories}
-                    className="w-full rounded-full py-6 bg-primary hover:bg-primary-hover"
-                  >
-                    {savingCategories ? 'Salvando...' : 'Salvar Categorias'}
-                  </Button>
-                </DialogContent>
-              </Dialog>
+                </div>
+              )}
             </div>
 
-            {selectedCategories.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {selectedCategories.map(cat => {
-                  const info = getCategoryInfo(cat);
-                  return (
-                    <span 
-                      key={cat}
-                      className="px-3 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center gap-1"
-                    >
-                      {info.icon} {info.label}
-                    </span>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
-                <p className="text-sm text-yellow-800">
-                  Você ainda não selecionou categorias. Clique em "Editar" para escolher.
-                </p>
-              </div>
-            )}
-          </div>
+            {/* Seção de Categorias de Ajuda */}
+            <div className="border-t border-gray-100 pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-textPrimary flex items-center gap-2">
+                  <Heart size={20} className="text-primary" />
+                  Categorias que você ajuda
+                </h3>
+                <Dialog open={showCategoriesDialog} onOpenChange={setShowCategoriesDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="rounded-full">
+                      <Edit size={16} className="mr-1" />
+                      Editar
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-3xl max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        🤝 Categorias de Ajuda
+                      </DialogTitle>
+                      <p className="text-sm text-textSecondary">
+                        Selecione as categorias em que você pode oferecer ajuda
+                      </p>
+                    </DialogHeader>
 
-          {user?.bio && (
+                    <div className="grid grid-cols-2 gap-3 my-4">
+                      {HELP_CATEGORIES.map(cat => (
+                        <button
+                          key={cat.value}
+                          type="button"
+                          onClick={() => toggleCategory(cat.value)}
+                          className={`p-3 rounded-xl border-2 transition-all text-left relative ${
+                            selectedCategories.includes(cat.value)
+                              ? 'bg-primary/10 border-primary shadow-md'
+                              : 'bg-white border-gray-200 hover:border-primary/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{cat.icon}</span>
+                            <span className={`text-sm font-medium ${
+                              selectedCategories.includes(cat.value) ? 'text-primary' : 'text-textPrimary'
+                            }`}>
+                              {cat.label}
+                            </span>
+                          </div>
+                          {selectedCategories.includes(cat.value) && (
+                            <div className="absolute top-2 right-2">
+                              <Check size={14} className="text-primary" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+
+                    {selectedCategories.length > 0 && (
+                      <div className="p-3 bg-green-50 rounded-xl border border-green-200 mb-4">
+                        <p className="text-sm text-green-700 flex items-center gap-2">
+                          <Check size={16} />
+                          {selectedCategories.length} categoria{selectedCategories.length > 1 ? 's' : ''} selecionada{selectedCategories.length > 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={saveCategories}
+                      disabled={savingCategories}
+                      className="w-full rounded-full py-6 bg-primary hover:bg-primary-hover"
+                    >
+                      {savingCategories ? 'Salvando...' : 'Salvar Categorias'}
+                    </Button>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {selectedCategories.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {selectedCategories.map(cat => {
+                    const info = getCategoryInfo(cat);
+                    return (
+                      <span
+                        key={cat}
+                        className="px-3 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center gap-1"
+                      >
+                        {info.icon} {info.label}
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                  <p className="text-sm text-yellow-800">
+                    Você ainda não selecionou categorias. Clique em "Editar" para escolher.
+                  </p>
+                </div>
+              )}
+            </div>
+
             <div className="border-t border-gray-100 pt-6">
               <h3 className="font-bold text-textPrimary mb-2">Sobre</h3>
-              <p className="text-textSecondary leading-relaxed">{user.bio}</p>
+              <p className="text-textSecondary leading-relaxed">
+                {user?.bio || 'Adicione uma breve descrição sobre você para que outros membros conheçam melhor seu perfil.'}
+              </p>
             </div>
-          )}
+          </div>
+        )}
 
-          <div className="border-t border-gray-100 pt-6">
+        {/* Tab: Fotos */}
+        {activeTab === 'photos' && (
+          <div className="bg-white rounded-3xl p-6 shadow-card" data-testid="tab-photos">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-textPrimary">Minhas fotos</h3>
+              <Button size="sm" className="rounded-full bg-primary hover:bg-primary-hover">
+                <Camera size={16} className="mr-1" /> Adicionar
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} className="aspect-square rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-400">
+                  <Camera size={24} />
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-textMuted text-sm mt-6">
+              Você ainda não publicou fotos. Clique em "Adicionar" para começar.
+            </p>
+          </div>
+        )}
+
+        {/* Tab: Avaliações */}
+        {activeTab === 'reviews' && (
+          <div className="bg-white rounded-3xl p-6 shadow-card" data-testid="tab-reviews">
+            <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-textPrimary">0.0</div>
+                <div className="flex items-center gap-0.5 justify-center text-amber-400 mt-1">
+                  {'★★★★★'.split('').map((s,i) => <span key={i} className="text-gray-300">★</span>)}
+                </div>
+                <p className="text-xs text-textMuted mt-1">0 avaliações</p>
+              </div>
+              <div className="flex-1 space-y-1">
+                {[5,4,3,2,1].map(n => (
+                  <div key={n} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-textMuted">{n}</span>
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber-400" style={{ width: '0%' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="py-10 text-center">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-50 flex items-center justify-center">
+                <Sparkles size={22} className="text-amber-500" />
+              </div>
+              <p className="text-sm font-semibold text-textPrimary">Ainda sem avaliações</p>
+              <p className="text-xs text-textMuted mt-1">
+                As avaliações que você receber aparecerão aqui.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Atividade */}
+        {activeTab === 'activity' && (
+          <div className="bg-white rounded-3xl p-6 shadow-card" data-testid="tab-activity">
+            <h3 className="font-bold text-textPrimary mb-4">Atividade recente</h3>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <User size={16} className="text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Perfil criado</p>
+                  <p className="text-xs text-textMuted">Bem-vindo(a) à plataforma!</p>
+                </div>
+              </div>
+              <div className="py-8 text-center text-textMuted text-sm">
+                Nenhuma outra atividade ainda.
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white rounded-3xl p-6 shadow-card mt-6">
+
             <Button
               data-testid="logout-button"
               onClick={handleLogout}
