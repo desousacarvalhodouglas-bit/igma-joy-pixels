@@ -231,10 +231,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-
-        </div>
-
         {/* Informações de contato */}
+
         <div className="bg-white rounded-3xl p-6 shadow-card space-y-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-textSecondary">
