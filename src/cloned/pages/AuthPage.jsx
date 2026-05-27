@@ -254,39 +254,32 @@ export default function AuthPage() {
     <div className="min-h-screen flex">
       {/* Lado Esquerdo - Imagem de Fundo */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* Imagem baseada no role selecionado */}
-        <div 
+        {/* Imagem de trabalho em Jataí */}
+        <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-700"
-          style={{ 
-            backgroundImage: role === 'migrant' 
-              ? `url('https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?w=1200&q=90')`
-              : `url('https://images.unsplash.com/photo-1599119807932-4826b334c431?w=1200&q=90')`
-          }}
+          style={{ backgroundImage: `url(${jataiWorkImage})` }}
         />
-        {/* Overlay com gradiente */}
-        <div className={`absolute inset-0 ${
-          role === 'migrant' 
-            ? 'bg-gradient-to-br from-green-900/70 to-green-600/50' 
-            : 'bg-gradient-to-br from-primary/70 to-secondary/50'
-        }`} />
-        
+        {/* Overlay verde Goiás → âmbar */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/75 via-primary/50 to-secondary/60" />
+
         {/* Conteúdo sobre a imagem */}
-        <div className="relative z-10 flex flex-col justify-center items-center text-white p-12 text-center">
+        <div className="relative z-10 flex flex-col justify-center items-center text-primary-foreground p-12 text-center">
           <h1 className="text-4xl font-bold mb-4">
-            {role === 'migrant' ? 'Preciso de Ajuda' : 'Quero Ajudar'}
+            {role === 'helper' ? 'Ofereça Trabalho' : 'Encontre Trabalho em Jataí'}
           </h1>
-          <p className="text-xl text-white/90 max-w-md">
-            {role === 'migrant' 
-              ? 'Encontre apoio, recursos e uma comunidade pronta para te ajudar.'
-              : 'Sua solidariedade transforma vidas. Faça a diferença hoje.'}
+          <p className="text-xl text-primary-foreground/90 max-w-md">
+            {role === 'helper'
+              ? 'Conecte-se com profissionais qualificados da região de Goiás e impulsione seu negócio.'
+              : 'Acesse vagas, demandas e oportunidades de trabalho em Jataí e região do Cerrado.'}
           </p>
           <div className="mt-8 flex items-center gap-4">
-            <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
-              <span className="text-lg">+500 pessoas ajudadas</span>
+            <div className="bg-background/20 backdrop-blur-sm rounded-full px-6 py-3 border border-background/30">
+              <span className="text-lg font-semibold">+500 oportunidades em Jataí</span>
             </div>
           </div>
         </div>
       </div>
+
 
       {/* Lado Direito - Formulário */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 gradient-bg">
