@@ -440,17 +440,15 @@ export default function ProfilePage() {
         )}
 
         <div className="bg-white rounded-3xl p-6 shadow-card mt-6">
-
-            <Button
-              data-testid="logout-button"
-              onClick={handleLogout}
-              variant="outline"
-              className="w-full rounded-full py-6 text-red-600 border-red-200 hover:bg-red-50"
-            >
-              <LogOut size={20} className="mr-2" />
-              Sair
-            </Button>
-          </div>
+          <Button
+            data-testid="logout-button"
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full rounded-full py-6 text-red-600 border-red-200 hover:bg-red-50"
+          >
+            <LogOut size={20} className="mr-2" />
+            Sair
+          </Button>
         </div>
       </div>
 
