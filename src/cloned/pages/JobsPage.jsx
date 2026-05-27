@@ -184,62 +184,42 @@ export default function JobsPage() {
     }
   };
 
-  // Buscar vagas externas (com fallback: backend de busca não disponível no preview)
+  // Buscar vagas via edge function (carrega resultados DENTRO do app)
   const searchExternalJobs = async (query, location, page = 1) => {
     setSearchLoading(true);
     try {
-      const translatedQuery = translateSearchTerm(query || 'emprego');
-      const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || '';
+      const q = (query || 'emprego').trim();
+      const loc = (location || 'Brasil').trim();
 
-      // Se não há backend configurado, pular fetch e ir direto para plataformas externas
-      if (!backendUrl) {
-        setExternalJobs([]);
-        setTotalJobs(0);
-        setCurrentPage(page);
-        setViewMode('platforms');
-        toast.info('Busque vagas direto nas plataformas brasileiras abaixo 👇');
-        return;
-      }
-
-      const params = new URLSearchParams({
-        query: translatedQuery,
-        location: location || 'Brasil',
-        page: page.toString(),
-        date_posted: 'all'
+      const { data, error } = await supabase.functions.invoke('jobs-search', {
+        body: { query: q, location: loc },
+        // Suporte a query string também
+        method: 'POST',
       });
 
-      const response = await fetch(`${backendUrl}/api/jobs/search?${params}`);
-      const contentType = response.headers.get('content-type') || '';
+      if (error) throw error;
 
-      if (response.ok && contentType.includes('application/json')) {
-        const data = await response.json();
-        setExternalJobs(data.jobs || []);
-        setTotalJobs(data.total || 0);
-        setCurrentPage(page);
+      const jobs = Array.isArray(data?.jobs) ? data.jobs : [];
+      setExternalJobs(jobs);
+      setTotalJobs(jobs.length);
+      setCurrentPage(page);
+      setViewMode('search');
 
-        if (data.jobs?.length > 0) {
-          toast.success(`${data.jobs.length} vagas encontradas!`);
-        } else {
-          toast.info('Nenhuma vaga encontrada. Tente nas plataformas abaixo.');
-          setViewMode('platforms');
-        }
+      if (jobs.length > 0) {
+        toast.success(`${jobs.length} vagas carregadas!`);
       } else {
-        // Backend indisponível — mostrar plataformas externas
-        setExternalJobs([]);
-        setTotalJobs(0);
-        setViewMode('platforms');
-        toast.info('Busque vagas direto nas plataformas brasileiras abaixo 👇');
+        toast.info('Nenhuma vaga encontrada. Tente outros termos.');
       }
-    } catch (error) {
-      console.warn('Busca direta indisponível, usando plataformas externas:', error);
+    } catch (err) {
+      console.error('Erro ao buscar vagas:', err);
+      toast.error('Não foi possível carregar as vagas. Tente novamente.');
       setExternalJobs([]);
       setTotalJobs(0);
-      setViewMode('platforms');
-      toast.info('Busque vagas direto nas plataformas brasileiras abaixo 👇');
     } finally {
       setSearchLoading(false);
     }
   };
+
 
 
   // Executar busca
