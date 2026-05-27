@@ -35,6 +35,7 @@ export default function ProfilePage() {
   const [useDisplayName, setUseDisplayName] = useState(user?.use_display_name || false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [savingCategories, setSavingCategories] = useState(false);
+  const [activeTab, setActiveTab] = useState('presentation');
 
   useEffect(() => {
     fetchUserProfile();
