@@ -25,6 +25,41 @@ const CATEGORY_OPTIONS = [
   { value: 'repairs', label: 'Reparos' },
 ];
 
+const PREVIEW_POSTS = [
+  {
+    id: 'preview-need-1',
+    user_id: 'preview-migrant-1',
+    type: 'need',
+    category: 'housing',
+    title: 'Procuro hospedagem temporária em Paris',
+    description: 'Cheguei recentemente com minha família e precisamos de uma indicação segura de quarto ou acolhimento por alguns dias.',
+    images: ['https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=900&q=85'],
+    videos: [],
+    budget: 'Até €35/noite',
+    likes_count: 18,
+    comments_count: 6,
+    created_at: new Date(Date.now() - 1000 * 60 * 24).toISOString(),
+    location: { address: 'Paris 18e, France', city: 'Paris' },
+    user: { name: 'Mariana Silva', avatar: 'https://i.pravatar.cc/150?u=mariana-watizat' },
+  },
+  {
+    id: 'preview-offer-1',
+    user_id: 'preview-helper-1',
+    type: 'offer',
+    category: 'legal',
+    title: 'Orientação gratuita para documentação',
+    description: 'Sou voluntário e posso ajudar com leitura de cartas administrativas, agendamento e dúvidas sobre regularização.',
+    images: ['https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=900&q=85'],
+    videos: [],
+    budget: 'Voluntário',
+    likes_count: 42,
+    comments_count: 11,
+    created_at: new Date(Date.now() - 1000 * 60 * 58).toISOString(),
+    location: { address: 'Bibliothèque François-Mitterrand', city: 'Paris' },
+    user: { name: 'Lucas Martin', avatar: 'https://i.pravatar.cc/150?u=lucas-watizat' },
+  },
+];
+
 // Jataí-style PostCard rendering Watizat posts
 const PostCard = ({ post, onChat }) => {
   const [liked, setLiked] = useState(false);
@@ -181,10 +216,13 @@ export default function FeedPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setPosts(Array.isArray(data) ? data : []);
+        setPosts(Array.isArray(data) && data.length ? data : PREVIEW_POSTS);
+      } else {
+        setPosts(PREVIEW_POSTS);
       }
     } catch (e) {
       console.error('Failed to fetch posts', e);
+      setPosts(PREVIEW_POSTS);
     }
   };
 
@@ -315,11 +353,11 @@ export default function FeedPage() {
             {/* Mobile: Jataí Região logo (left) */}
             <div className="flex items-center gap-2 lg:hidden">
               <div className="w-9 h-9 rounded-xl grid place-items-center text-white font-extrabold text-lg" style={{ background: 'linear-gradient(135deg,#22c55e 0%,#f97316 100%)' }}>
-                J
+                W
               </div>
               <span className="text-base font-extrabold leading-tight">
-                <span className="text-green-500">Jataí</span>{' '}
-                <span className="text-orange-500">Região</span>
+                <span className="text-green-500">Wati</span>
+                <span className="text-orange-500">zat</span>
               </span>
             </div>
 
