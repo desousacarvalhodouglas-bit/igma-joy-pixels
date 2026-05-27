@@ -31,6 +31,47 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
   const fileRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  const detectLocation = React.useCallback(() => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocalização não suportada');
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=pt-BR`
+          );
+          const data = await res.json();
+          const addr = data.address || {};
+          const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
+          const state = addr.state_code || addr.state || '';
+          const formatted = [city, state].filter(Boolean).join(', ') || data.display_name || '';
+          if (formatted) setLocation(formatted);
+        } catch {
+          toast.error('Não foi possível obter o endereço');
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => {
+        setLocating(false);
+        toast.error('Permita o acesso à localização');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (open && mode === 'signup' && !location) {
+      detectLocation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, mode]);
 
   if (!open) return null;
 
