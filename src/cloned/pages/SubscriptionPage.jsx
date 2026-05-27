@@ -67,6 +67,37 @@ export default function SubscriptionPage() {
   const [services, setServices] = useState(4);
   const [objects, setObjects] = useState(3);
   const [notifications, setNotifications] = useState(true);
+  const [currentAddress, setCurrentAddress] = useState('Detectando sua localização...');
+  const [locating, setLocating] = useState(false);
+
+  const detectLocation = React.useCallback(() => {
+    if (!navigator.geolocation) {
+      setCurrentAddress('Geolocalização não suportada');
+      return;
+    }
+    setLocating(true);
+    setCurrentAddress('Detectando sua localização...');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const d = await r.json();
+          setCurrentAddress(d.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        } catch {
+          setCurrentAddress(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        }
+        setLocating(false);
+      },
+      () => {
+        setCurrentAddress('Permissão de localização negada');
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
+  }, []);
+
+  useEffect(() => { detectLocation(); }, [detectLocation]);
 
   // Subscription state
   const [subStatus, setSubStatus] = useState(null);
@@ -267,9 +298,15 @@ export default function SubscriptionPage() {
               <div className="rounded-xl border border-gray-200 p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <MapPin size={16} className="text-gray-500" />
-                  <span className="text-sm">
-                    {user?.location?.address || '54 Avenue de New York 75016 Paris'}
-                  </span>
+                  <span className="text-sm flex-1">{currentAddress}</span>
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={locating}
+                    className="text-xs text-orange-500 font-semibold hover:underline disabled:opacity-50"
+                  >
+                    {locating ? 'Buscando...' : 'Atualizar'}
+                  </button>
                 </div>
                 <div className="flex items-center gap-3">
                   <input
