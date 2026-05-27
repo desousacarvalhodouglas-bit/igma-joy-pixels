@@ -37,24 +37,29 @@ export default function ServicosAssinatura() {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('pix-brcode', { body: { amount: 35.9 } });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Falha ao chamar a função PIX');
+      if (!data?.brcode || !data?.txid) throw new Error('Resposta inválida da função PIX');
       const brcode = data.brcode as string;
       const txid = data.txid as string;
       const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
       if (sub) {
-        const { data: updated } = await supabase.from('svc_subscriptions')
+        const { data: updated, error: upErr } = await supabase.from('svc_subscriptions')
           .update({ pix_brcode: brcode, pix_txid: txid, status: 'pix', amount_brl: 35.9, expires_at: expires })
           .eq('id', sub.id).select().single();
+        if (upErr) throw upErr;
         setSub(updated as Sub);
       } else {
-        const { data: created } = await supabase.from('svc_subscriptions')
+        const { data: created, error: insErr } = await supabase.from('svc_subscriptions')
           .insert({ user_id: me, pix_brcode: brcode, pix_txid: txid, status: 'pix', amount_brl: 35.9, expires_at: expires })
           .select().single();
+        if (insErr) throw insErr;
         setSub(created as Sub);
       }
+      toast({ title: 'PIX gerado', description: 'Copie o código abaixo para pagar.' });
     } catch (err: any) {
-      toast({ title: 'Erro ao gerar PIX', description: err.message, variant: 'destructive' });
+      console.error('[PIX] erro:', err);
+      toast({ title: 'Erro ao gerar PIX', description: err?.message ?? String(err), variant: 'destructive' });
     } finally {
       setGenerating(false);
     }
