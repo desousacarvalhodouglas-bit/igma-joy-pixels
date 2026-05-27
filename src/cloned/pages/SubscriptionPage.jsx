@@ -81,48 +81,72 @@ export default function SubscriptionPage() {
 
   const fetchStatus = async () => {
     try {
-      const r = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/subscription/status`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (r.ok) setSubStatus(await r.json());
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from('svc_subscriptions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (data) {
+        setSubStatus({
+          status: data.status,
+          active: data.status === 'active',
+          in_trial: data.status === 'trial',
+          trial_ends_at: data.trial_ends_at,
+        });
+      }
     } catch (e) { console.error(e); }
   };
 
   const startSubscription = async () => {
     setLoadingPix(true);
     try {
-      const r = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/subscription/start`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (r.ok) {
-        const data = await r.json();
-        setPixData(data);
-        setShowPaymentModal(true);
-        toast.success(`Você ganhou ${3} dias grátis!`);
-        fetchStatus();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { toast.error('Faça login primeiro'); return; }
+      const { data, error } = await supabase.functions.invoke('pix-brcode', { body: { amount: 35.9 } });
+      if (error || !data?.brcode) throw new Error(error?.message || 'Falha ao gerar PIX');
+
+      const trialEnds = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data: existing } = await supabase
+        .from('svc_subscriptions').select('id').eq('user_id', session.user.id).maybeSingle();
+
+      if (existing) {
+        await supabase.from('svc_subscriptions').update({
+          pix_brcode: data.brcode, pix_txid: data.txid, status: 'pix',
+          amount_brl: 35.9, expires_at: expires,
+        }).eq('id', existing.id);
       } else {
-        toast.error('Erro ao iniciar assinatura');
+        await supabase.from('svc_subscriptions').insert({
+          user_id: session.user.id, pix_brcode: data.brcode, pix_txid: data.txid,
+          status: 'pix', amount_brl: 35.9, trial_ends_at: trialEnds, expires_at: expires,
+        });
       }
-    } catch (e) { toast.error('Erro de conexão'); }
-    finally { setLoadingPix(false); }
+
+      setPixData({
+        brcode: data.brcode,
+        amount: data.amount,
+        trial_ends_at: trialEnds,
+        qr_code_base64: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.brcode)}`,
+      });
+      setShowPaymentModal(true);
+      toast.success('Você ganhou 3 dias grátis!');
+      fetchStatus();
+    } catch (e) {
+      console.error('[PIX] erro:', e);
+      toast.error(e?.message || 'Erro ao gerar PIX');
+    } finally { setLoadingPix(false); }
   };
 
   const confirmPayment = async () => {
     setConfirming(true);
     try {
-      const r = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || ""}/api/subscription/confirm-payment`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ proof_message: 'PIX enviado pelo usuário' }),
-      });
-      if (r.ok) {
-        toast.success('Pagamento declarado! Aguardando confirmação.');
-        setShowPaymentModal(false);
-        fetchStatus();
-      }
-    } catch (e) { toast.error('Erro de conexão'); }
-    finally { setConfirming(false); }
+      toast.success('Pagamento declarado! Aguardando confirmação do administrador.');
+      setShowPaymentModal(false);
+      fetchStatus();
+    } finally { setConfirming(false); }
   };
 
   const copyBrcode = () => {
