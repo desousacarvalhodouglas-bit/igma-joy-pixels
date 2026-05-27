@@ -574,7 +574,7 @@ export default function DirectChatPage() {
                       </span>
                     </div>
                     {msgs.map((msg, idx) => {
-                      const isMe = msg.from_user_id === currentUser.id;
+                      const isMe = msg.is_from_me || msg.from_user_id === currentUser.id;
                       return (
                         <div
                           key={idx}
