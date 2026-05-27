@@ -130,13 +130,13 @@ export default function AuthModal({ open, onClose, mode = 'login', onModeChange 
 
       // upload avatar (opcional, apenas quando já existe sessão autenticada)
       if (avatarFile && data.user && data.session) {
-        const path = `${data.user.id}/${Date.now()}-${avatarFile.name}`;
+        const path = `${data.user.id}/avatar`;
         const { error: upErr } = await supabase.storage
           .from('svc-photos')
-          .upload(path, avatarFile, { upsert: true });
+          .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
         if (!upErr) {
           const { data: pub } = supabase.storage.from('svc-photos').getPublicUrl(path);
-          await updateSvcProfile(data.user.id, { avatar_url: pub.publicUrl });
+          await updateSvcProfile(data.user.id, { avatar_url: `${pub.publicUrl}?v=${Date.now()}` });
         }
       }
 
