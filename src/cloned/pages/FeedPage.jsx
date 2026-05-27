@@ -457,7 +457,7 @@ export default function FeedPage() {
             </div>
 
             {/* Desktop: Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
+            <nav className="hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8 mx-4">
               <button onClick={() => navigate('/home')} className="flex flex-col items-center text-gray-700 hover:text-gray-900 transition-colors">
                 <HomeIcon className="w-5 h-5 mb-0.5" />
                 <span className="text-[10px]">Início</span>
