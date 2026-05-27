@@ -817,15 +817,16 @@ export default function DirectChatPage() {
                 </div>
 
                 <div className="mt-6 space-y-1 border-t pt-4">
-                  <PanelLink icon={<Share2 size={16} />} label="Compartilhar perfil" onClick={() => toast.info('Compartilhar')} testid="share-profile" />
-                  <PanelLink icon={<Pin size={16} />} label="Fixar conversa" onClick={() => toast.info('Conversa fixada')} testid="pin-conversation" />
-                  <PanelLink icon={<Archive size={16} />} label="Arquivar conversa" onClick={() => toast.info('Conversa arquivada')} testid="archive-conversation" />
+                  <PanelLink icon={<Share2 size={16} />} label="Compartilhar perfil" onClick={handleShareConversation} testid="share-profile" />
+                  <PanelLink icon={<Pin size={16} />} label={isPinned ? 'Desafixar conversa' : 'Fixar conversa'} onClick={togglePin} testid="pin-conversation" />
+                  <PanelLink icon={<Archive size={16} />} label={isArchived ? 'Desarquivar conversa' : 'Arquivar conversa'} onClick={toggleArchive} testid="archive-conversation" />
                 </div>
 
                 <div className="mt-4 space-y-1 border-t pt-4">
-                  <PanelLink danger icon={<Flag size={16} />} label="Reportar perfil" onClick={() => toast.warning('Perfil reportado')} testid="report-profile" />
-                  <PanelLink danger icon={<Ban size={16} />} label="Bloquear" onClick={() => toast.warning('Usuário bloqueado')} testid="block-user" />
+                  <PanelLink danger icon={<Flag size={16} />} label="Reportar perfil" onClick={handleReport} testid="report-profile" />
+                  <PanelLink danger icon={<Ban size={16} />} label={isBlocked ? 'Desbloquear' : 'Bloquear'} onClick={toggleBlock} testid="block-user" />
                 </div>
+
               </>
             ) : (
               <div className="text-center text-sm text-gray-400 py-10">Carregando perfil...</div>
